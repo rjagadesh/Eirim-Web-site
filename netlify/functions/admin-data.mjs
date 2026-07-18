@@ -16,10 +16,13 @@ function readCreds() {
   }
 }
 
-async function dumpStore(name) {
+async function dumpStore(name, limit) {
   const store = getStore(name);
+  let { blobs } = await store.list();
+  // pageview keys are timestamp-prefixed, so lexical desc ≈ most-recent first.
+  blobs.sort((a, b) => String(b.key).localeCompare(String(a.key)));
+  if (limit) blobs = blobs.slice(0, limit);
   const out = [];
-  const { blobs } = await store.list();
   for (const b of blobs) {
     try {
       const v = await store.get(b.key, { type: "json" });
@@ -42,16 +45,27 @@ export default async (req) => {
   if (given !== PW) return json({ error: "Unauthorized" }, 401);
 
   try {
-    const [transcripts, visitors] = await Promise.all([
+    const [transcripts, visitors, pageviews, leads] = await Promise.all([
       dumpStore("chat-transcripts"),
       dumpStore("visitors"),
+      dumpStore("pageviews", 1000),
+      dumpStore("leads"),
     ]);
     transcripts.sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
     visitors.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+    pageviews.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
+    leads.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));
     return json({
       transcripts,
       visitors,
-      counts: { transcripts: transcripts.length, visitors: visitors.length },
+      pageviews,
+      leads,
+      counts: {
+        transcripts: transcripts.length,
+        visitors: visitors.length,
+        pageviews: pageviews.length,
+        leads: leads.length,
+      },
     });
   } catch (err) {
     return json({ error: err.message }, 500);

@@ -12,13 +12,23 @@ const fmt = (iso) => {
   }
 };
 
+// Count occurrences and return [ [label, count], ... ] sorted desc.
+const tally = (arr, keyFn) => {
+  const m = new Map();
+  arr.forEach((x) => {
+    const k = keyFn(x);
+    if (k) m.set(k, (m.get(k) || 0) + 1);
+  });
+  return [...m.entries()].sort((a, b) => b[1] - a[1]);
+};
+
 export default function Admin() {
   const [pw, setPw] = useState(sessionStorage.getItem(PW_KEY) || "");
   const [authed, setAuthed] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
-  const [tab, setTab] = useState("visitors");
+  const [tab, setTab] = useState("leads");
   const [openSession, setOpenSession] = useState(null);
 
   const load = async (password) => {
@@ -82,7 +92,12 @@ export default function Admin() {
     );
   }
 
-  const { transcripts = [], visitors = [], counts = {} } = data || {};
+  const { transcripts = [], visitors = [], pageviews = [], leads = [], counts = {} } = data || {};
+  const uniqueVisitors = new Set(pageviews.map((p) => p.visitorId).filter(Boolean)).size;
+  const topPages = tally(pageviews, (p) => p.path);
+  const topCountries = tally(pageviews, (p) => p.geo?.country);
+  const topReferrers = tally(pageviews, (p) => p.referrerDomain || (p.referrer ? "other" : "direct"));
+  const topCampaigns = tally(pageviews, (p) => p.utm?.campaign || p.utm?.source);
 
   return (
     <div className="ad-wrap">
@@ -103,9 +118,21 @@ export default function Admin() {
       </header>
 
       <div className="ad-stats">
+        <div className="ad-stat ad-stat-hot">
+          <b>{counts.leads ?? leads.length}</b>
+          <span>Demo requests</span>
+        </div>
+        <div className="ad-stat">
+          <b>{counts.pageviews ?? pageviews.length}</b>
+          <span>Pageviews</span>
+        </div>
+        <div className="ad-stat">
+          <b>{uniqueVisitors}</b>
+          <span>Unique visitors</span>
+        </div>
         <div className="ad-stat">
           <b>{counts.visitors ?? visitors.length}</b>
-          <span>Visitors</span>
+          <span>Chat leads</span>
         </div>
         <div className="ad-stat">
           <b>{counts.transcripts ?? transcripts.length}</b>
@@ -114,8 +141,14 @@ export default function Admin() {
       </div>
 
       <nav className="ad-tabs">
+        <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>
+          Demo requests
+        </button>
+        <button className={tab === "traffic" ? "on" : ""} onClick={() => setTab("traffic")}>
+          Traffic
+        </button>
         <button className={tab === "visitors" ? "on" : ""} onClick={() => setTab("visitors")}>
-          Visitors
+          Chat leads
         </button>
         <button className={tab === "chats" ? "on" : ""} onClick={() => setTab("chats")}>
           Chat transcripts
@@ -123,6 +156,104 @@ export default function Admin() {
       </nav>
 
       {error && <div className="ad-err">{error}</div>}
+
+      {tab === "leads" && (
+        <div className="ad-card">
+          {leads.length === 0 ? (
+            <div className="ad-empty">No demo requests yet.</div>
+          ) : (
+            <div className="ad-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>When</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Clinic</th>
+                    <th>Phone</th>
+                    <th>Best time</th>
+                    <th>Message</th>
+                    <th>Source</th>
+                    <th>Location</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map((l) => (
+                    <tr key={l.id}>
+                      <td className="ad-nowrap">{fmt(l.at)}</td>
+                      <td>{l.name || "—"}</td>
+                      <td>
+                        <a className="ad-mail" href={`mailto:${l.email}`}>{l.email || "—"}</a>
+                      </td>
+                      <td>{l.clinic || "—"}</td>
+                      <td className="ad-nowrap">
+                        {l.phone ? <a className="ad-mail" href={`tel:${l.phone}`}>{l.phone}</a> : "—"}
+                      </td>
+                      <td>{l.preferredTime || "—"}</td>
+                      <td className="ad-trunc" title={l.message || ""}>{l.message || "—"}</td>
+                      <td className="ad-trunc">{l.source || "—"}</td>
+                      <td>{[l.geo?.city, l.geo?.country].filter(Boolean).join(", ") || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "traffic" && (
+        <>
+          <div className="ad-insights">
+            <InsightCard title="Top pages" rows={topPages} />
+            <InsightCard title="Top countries" rows={topCountries} empty="No geo yet (shows on live site)" />
+            <InsightCard title="Top referrers" rows={topReferrers} />
+            <InsightCard title="Top campaigns" rows={topCampaigns} empty="No UTM campaigns yet" />
+          </div>
+          <div className="ad-card">
+            {pageviews.length === 0 ? (
+              <div className="ad-empty">No traffic logged yet.</div>
+            ) : (
+              <div className="ad-scroll">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>When</th>
+                      <th>Location</th>
+                      <th>IP</th>
+                      <th>Device</th>
+                      <th>Page</th>
+                      <th>Source</th>
+                      <th>Visitor</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pageviews.map((p) => (
+                      <tr key={p.id}>
+                        <td className="ad-nowrap">{fmt(p.at)}</td>
+                        <td>{[p.geo?.city, p.geo?.country].filter(Boolean).join(", ") || "—"}</td>
+                        <td className="ad-nowrap">{p.ip || "—"}</td>
+                        <td className="ad-nowrap">
+                          {[p.device?.browser, p.device?.os].filter(Boolean).join(" / ") || "—"}
+                          {p.device?.type && <span className="ad-badge">{p.device.type}</span>}
+                        </td>
+                        <td>{p.path}</td>
+                        <td className="ad-trunc">
+                          {p.utm?.campaign || p.utm?.source || p.referrerDomain || "direct"}
+                        </td>
+                        <td className="ad-trunc" title={p.visitorId || ""}>
+                          {p.newVisitor ? "🆕 " : ""}
+                          {(p.visitorId || "").slice(0, 8)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {tab === "visitors" && (
         <div className="ad-card">
@@ -201,6 +332,31 @@ export default function Admin() {
   );
 }
 
+function InsightCard({ title, rows, empty = "No data yet" }) {
+  const top = rows.slice(0, 6);
+  const max = top[0]?.[1] || 1;
+  return (
+    <div className="ad-insight">
+      <h3>{title}</h3>
+      {top.length === 0 ? (
+        <div className="ad-insight-empty">{empty}</div>
+      ) : (
+        top.map(([label, n]) => (
+          <div key={label} className="ad-bar-row">
+            <span className="ad-bar-label" title={label}>
+              {label}
+            </span>
+            <span className="ad-bar-track">
+              <span className="ad-bar-fill" style={{ width: `${(n / max) * 100}%` }} />
+            </span>
+            <span className="ad-bar-n">{n}</span>
+          </div>
+        ))
+      )}
+    </div>
+  );
+}
+
 const CSS = `
 .ad-wrap{min-height:100vh; background:#0F1B19; color:#E8F0EE; font-family:'Figtree',system-ui,sans-serif; padding:26px clamp(16px,4vw,48px)}
 .ad-center{display:grid; place-items:center}
@@ -225,6 +381,10 @@ const CSS = `
 .ad-stat{background:#16302B; border:1px solid rgba(207,229,222,.14); border-radius:12px; padding:16px 24px; min-width:130px}
 .ad-stat b{display:block; font-size:30px; color:#3DDC97; font-weight:800; line-height:1}
 .ad-stat span{font-size:12.5px; color:rgba(232,240,238,.6)}
+.ad-stat-hot{background:linear-gradient(135deg,#1E6B5C,#154D42); border-color:rgba(61,220,151,.4)}
+.ad-stat-hot b{color:#F2C14E}
+.ad-mail{color:#7FD1BE; text-decoration:none}
+.ad-mail:hover{text-decoration:underline}
 
 .ad-tabs{display:flex; gap:6px; margin-bottom:16px}
 .ad-tabs button{background:transparent; border:none; color:rgba(232,240,238,.6); padding:9px 16px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit}
@@ -251,4 +411,15 @@ th{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:rgba(
 .ad-user .ad-role{color:#7FD1BE}
 .ad-assistant .ad-role{color:#F2C14E}
 .ad-text{white-space:pre-wrap; color:rgba(232,240,238,.9)}
+
+.ad-insights{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin-bottom:18px}
+.ad-insight{background:#16302B; border:1px solid rgba(207,229,222,.14); border-radius:12px; padding:16px 18px}
+.ad-insight h3{margin:0 0 12px; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:rgba(232,240,238,.6); font-weight:700}
+.ad-insight-empty{font-size:12.5px; color:rgba(232,240,238,.4)}
+.ad-bar-row{display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:13px}
+.ad-bar-label{flex:0 0 34%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#E8F0EE}
+.ad-bar-track{flex:1; height:8px; background:rgba(207,229,222,.1); border-radius:999px; overflow:hidden}
+.ad-bar-fill{display:block; height:100%; background:linear-gradient(90deg,#1E6B5C,#3DDC97); border-radius:999px}
+.ad-bar-n{flex:none; color:rgba(232,240,238,.7); font-variant-numeric:tabular-nums; min-width:26px; text-align:right}
+.ad-badge{display:inline-block; margin-left:8px; font-size:10.5px; padding:1px 7px; border-radius:999px; background:rgba(61,220,151,.15); color:#3DDC97; vertical-align:middle}
 `;

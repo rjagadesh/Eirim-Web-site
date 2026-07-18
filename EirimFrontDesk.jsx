@@ -80,9 +80,10 @@ function Nav() {
         <div className="nav-links">
           <a href="#voice">Voice</a>
           <a href="#checkin">Check-in</a>
-          <a href="#roi">ROI</a>
           <a href="#pricing">Pricing</a>
-          <a href="#cta" className="nav-cta">Book a demo</a>
+          <a href="#faq">FAQ</a>
+          <a href="tel:+35315551234" className="nav-phone">📞 +353 1 555 1234</a>
+          <a href="#cta" className="nav-cta" onClick={(e) => { e.preventDefault(); openDemo(); }}>Book a demo</a>
         </div>
       </div>
     </nav>
@@ -146,20 +147,73 @@ function Hero() {
   const [muted, setMuted] = useState(true);
   const vid0 = useRef(null);
   const vid1 = useRef(null);
+  const activeVid = () => (idx === 0 ? vid0.current : vid1.current);
+
+  // On slide change: restart & play the active slide's video, pause the other.
+  // Advancing is driven by each video's 'ended' event (see onEnded below).
+  useEffect(() => {
+    const active = idx === 0 ? vid0.current : vid1.current;
+    const other = idx === 0 ? vid1.current : vid0.current;
+    if (other) {
+      try {
+        other.pause();
+      } catch {}
+    }
+    if (active) {
+      try {
+        active.currentTime = 0;
+        const p = active.play();
+        if (p && p.catch) p.catch(() => {});
+      } catch {}
+    }
+  }, [idx]);
+
+  // Safety fallback: if a video never fires 'ended' (stall / missing metadata),
+  // still move on after a generous timeout. Hover (paused) suspends it.
   useEffect(() => {
     if (paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const id = setInterval(() => setIdx((i) => (i + 1) % 2), 7000);
-    return () => clearInterval(id);
-  }, [paused]);
+    const t = setTimeout(() => setIdx((i) => (i + 1) % 2), 45000);
+    return () => clearTimeout(t);
+  }, [idx, paused]);
+
   // Only the active slide's video carries sound; the other stays muted.
   useEffect(() => {
     if (vid0.current) vid0.current.muted = muted || idx !== 0;
     if (vid1.current) vid1.current.muted = muted || idx !== 1;
   }, [muted, idx]);
 
+  const soundBtn = (
+    <button
+      className="hero-sound"
+      aria-label={muted ? "Play sound" : "Mute sound"}
+      aria-pressed={!muted}
+      data-tip={muted ? "Play sound" : "Mute"}
+      onClick={() => setMuted((m) => !m)}
+    >
+      {muted ? "🔇" : "🔊"}
+    </button>
+  );
+
   return (
-    <header className="hero" id="top" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <header
+      className="hero"
+      id="top"
+      onMouseEnter={() => {
+        setPaused(true);
+        try {
+          activeVid()?.pause();
+        } catch {}
+      }}
+      onMouseLeave={() => {
+        setPaused(false);
+        const v = activeVid();
+        if (v) {
+          const p = v.play();
+          if (p && p.catch) p.catch(() => {});
+        }
+      }}
+    >
       <div className="hero-glow" aria-hidden="true" />
       {/* Slide 1 — Kiosk */}
       <div className={"slide" + (idx === 0 ? " slide-on" : "")} aria-hidden={idx !== 0}>
@@ -167,7 +221,7 @@ function Hero() {
           <div className="hero-copy">
             <Eyebrow light>Product · Eirim Check-in kiosk</Eyebrow>
             <h1>Meet your new<br /><em>front desk assistant</em></h1>
-            <p className="lead">A self check-in kiosk that greets your patients, takes the €65 visit fee by card, verifies their details — and writes it all straight into your PMS: <b>Socrates</b> and <b>HealthOne</b>.</p>
+            <p className="lead">A self check-in kiosk that greets your patients, takes the copay by card, verifies their details — and writes it all straight into your PMS: <b>Socrates</b> and <b>HealthOne</b>.</p>
             <div className="btn-row">
               <a className="btn btn-gorse" href="#checkin">See the kiosk</a>
               <a className="btn btn-ghost" href="#pricing">Pricing</a>
@@ -175,13 +229,14 @@ function Hero() {
             <div className="hero-note">Integrated with your PMS · Hardware included · €250/month</div>
           </div>
           <div className="hero-art">
+            {soundBtn}
             <video
               ref={vid0}
               src={IMG.heroVideo}
               autoPlay
               muted
-              loop
               playsInline
+              onEnded={() => setIdx((i) => (i === 0 ? 1 : i))}
               aria-label="Patient checking in at the Eirim kiosk in a clinic lobby"
             />
           </div>
@@ -201,27 +256,20 @@ function Hero() {
             <div className="hero-note">Unlimited simultaneous calls · 24/7 · €250/month + €0.10/min</div>
           </div>
           <div className="hero-art hero-art-full">
+            {soundBtn}
             <video
               ref={vid1}
               src="/voice-ai.mp4"
               autoPlay
               muted
-              loop
               playsInline
+              onEnded={() => setIdx((i) => (i === 1 ? 0 : i))}
               aria-label="Eirim Voice AI agent answering patient calls alongside the reception team"
             />
           </div>
         </div>
       </div>
 
-      <button
-        className="hero-sound"
-        aria-label={muted ? "Unmute video" : "Mute video"}
-        aria-pressed={!muted}
-        onClick={() => setMuted((m) => !m)}
-      >
-        {muted ? "🔇" : "🔊"} {muted ? "Sound off" : "Sound on"}
-      </button>
       <button className="s-arrow s-prev" aria-label="Previous slide" onClick={() => setIdx((i) => (i + 1) % 2)}>‹</button>
       <button className="s-arrow s-next" aria-label="Next slide" onClick={() => setIdx((i) => (i + 1) % 2)}>›</button>
       <div className="s-dots">
@@ -326,14 +374,13 @@ function Checkin() {
         <div className="ck-grid">
           <Reveal delay={80}>
             <div className="ck-photos">
-              <img className="ck-main" src={IMG.kioskWhite} alt="Eirim Check-in kiosk, white floor-standing unit" />
-              <img className="ck-alt" src={IMG.kioskBlack} alt="Eirim Check-in kiosk, black unit" />
+              <img className="ck-main" src="/kiosk-image.png" alt="Eirim Health self check-in kiosk in a clinic lobby" />
             </div>
           </Reveal>
           <div className="ck-feats">
             {[
               ["Arrival to PMS", "Patient taps in — their arrival status appears in Socrates/HealthOne instantly. No queue at the desk."],
-              ["€65 collected on the spot", "Card payment at check-in. The visit fee is settled before the patient sits down — not chased after."],
+              ["Copay collected on the spot", "Card payment at check-in. The copay is settled before the patient sits down — not chased after."],
               ["Details refreshed", "Mobile number and Eircode confirmed at every visit. Your SMS reminders actually arrive."],
               ["New patient forms", "Registration and consent captured on screen — typed, legible, structured. No clipboards."],
               ["Fáilte · English &amp; Gaeilge", "A warm bilingual welcome, larger type for older patients, full accessibility mode."],
@@ -444,7 +491,7 @@ function Pricing() {
     },
     {
       name: "Eirim Check-in", price: "€250", per: "/month, hardware included",
-      feats: ["Floor-standing kiosk (white/black)", "Arrival status to your PMS", "€65 card payment at check-in", "Details refresh + new patient forms", "English & Gaeilge"],
+      feats: ["Floor-standing kiosk (white/black)", "Arrival status to your PMS", "Copay collected at check-in", "Details refresh + new patient forms", "English & Gaeilge"],
       cta: "Start with Check-in",
     },
   ];
@@ -463,7 +510,7 @@ function Pricing() {
                 <h3>{p.name}</h3>
                 <div className="plan-price">{p.price}<span>{p.per}</span></div>
                 <ul>{p.feats.map((f) => <li key={f}>{f}</li>)}</ul>
-                <a href="#cta" className={"btn " + (p.featured ? "btn-gorse" : "btn-line")}>{p.cta}</a>
+                <a href="#cta" className={"btn " + (p.featured ? "btn-gorse" : "btn-line")} onClick={(e) => { e.preventDefault(); openDemo(); }}>{p.cta}</a>
               </div>
             </Reveal>
           ))}
@@ -477,15 +524,23 @@ function Pricing() {
 function CTA() {
   return (
     <section className="sec sec-dark" id="cta">
-      <div className="wrap cta-in">
-        <Reveal>
-          <ShamrockMark size={46} variant="light" />
-          <h2 className="h-light">Be one of the twenty<br />founding practices</h2>
-          <p className="lead-light">Free setup, a 60-day trial, and pricing locked for 24 months. We'll have Eirim Voice answering your calls within a fortnight.</p>
-          <div className="btn-row btn-row-c">
-            <a className="btn btn-gorse btn-big" href="mailto:hello@eirimhealth.com">Book a 15-minute demo</a>
+      <div className="wrap cta-grid">
+        <div className="cta-copy">
+          <Reveal>
+            <ShamrockMark size={46} variant="light" />
+            <h2 className="h-light">Be one of the twenty<br />founding practices</h2>
+            <p className="lead-light">Free setup, a 60-day trial, and pricing locked for 24 months. We'll have Eirim Voice answering your calls within a fortnight.</p>
+            <div className="cta-contact">
+              <a href="tel:+35315551234">📞 +353 1 555 1234</a>
+              <a href="mailto:hello@eirimhealth.com">✉ hello@eirimhealth.com</a>
+            </div>
+          </Reveal>
+        </div>
+        <Reveal delay={120}>
+          <div className="cta-form-card">
+            <h3>Request your demo</h3>
+            <LeadForm source="cta-inline" dark />
           </div>
-          <div className="cta-mail">hello@eirimhealth.com</div>
         </Reveal>
       </div>
     </section>
@@ -498,13 +553,207 @@ function Footer() {
       <div className="wrap foot-in">
         <div className="brand brand-foot"><ShamrockMark size={24} variant="light" /><span>Eirim <b>Health</b></span></div>
         <div className="foot-links">
+          <a href="tel:+35315551234">📞 +353 1 555 1234</a>
+          <a href="mailto:hello@eirimhealth.com">hello@eirimhealth.com</a>
           <span>Dublin, Ireland</span>
-          <span>·</span>
-          <a href="#top">For hospitals →</a>
         </div>
         <div className="foot-legal">GDPR compliant · Data hosted in the EU · © 2026 Eirim Health</div>
       </div>
     </footer>
+  );
+}
+
+/* ---------- Lead form + Book-a-demo modal ---------- */
+const LEAD_ENDPOINT = "/.netlify/functions/lead";
+const isLeadEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").trim());
+
+// Any CTA can open the booking modal by dispatching this event.
+function openDemo() {
+  window.dispatchEvent(new Event("eirim:book-demo"));
+}
+
+function LeadForm({ source = "cta", onDone, dark = false }) {
+  const [f, setF] = useState({ name: "", email: "", clinic: "", phone: "", preferredTime: "", message: "" });
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+  const [err, setErr] = useState("");
+  const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.value }));
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (!f.name.trim() || !isLeadEmail(f.email)) {
+      setErr("Please enter your name and a valid email.");
+      return;
+    }
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(LEAD_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...f,
+          source,
+          page: window.location.pathname,
+          visitorId: (typeof localStorage !== "undefined" && localStorage.getItem("eirim_vid")) || null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      setDone(true);
+      if (onDone) setTimeout(onDone, 2400);
+    } catch (e2) {
+      setErr(e2.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (done) {
+    return (
+      <div className="lead-done">
+        <div className="lead-check">✓</div>
+        <h3>Thanks, {f.name.trim().split(" ")[0] || "there"}!</h3>
+        <p>We've got your request — the Eirim team will be in touch within one business day to arrange your demo.</p>
+      </div>
+    );
+  }
+
+  return (
+    <form className={"lead-form" + (dark ? " lead-form-dark" : "")} onSubmit={submit}>
+      <div className="lead-row">
+        <label>
+          Name*
+          <input value={f.name} onChange={set("name")} placeholder="Jane Murphy" required />
+        </label>
+        <label>
+          Work email*
+          <input type="email" value={f.email} onChange={set("email")} placeholder="jane@clinic.ie" required />
+        </label>
+      </div>
+      <div className="lead-row">
+        <label>
+          Clinic / practice
+          <input value={f.clinic} onChange={set("clinic")} placeholder="Riverside Medical" />
+        </label>
+        <label>
+          Phone
+          <input value={f.phone} onChange={set("phone")} placeholder="+353 1 234 5678" />
+        </label>
+      </div>
+      <label>
+        Best time to call
+        <input value={f.preferredTime} onChange={set("preferredTime")} placeholder="e.g. Weekday mornings" />
+      </label>
+      <label>
+        Anything specific?
+        <textarea value={f.message} onChange={set("message")} rows={2} placeholder="What would you like Eirim to help with?" />
+      </label>
+      {err && <div className="lead-err">{err}</div>}
+      <button type="submit" className="btn btn-gorse btn-big lead-submit" disabled={busy}>
+        {busy ? "Sending…" : "Request my demo"}
+      </button>
+      <p className="lead-fine">No spam. We'll only use this to arrange your demo.</p>
+    </form>
+  );
+}
+
+function BookDemo() {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const h = () => setOpen(true);
+    window.addEventListener("eirim:book-demo", h);
+    return () => window.removeEventListener("eirim:book-demo", h);
+  }, []);
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    if (open) window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+  if (!open) return null;
+  return (
+    <div className="eirim">
+      <div className="bd-overlay" onClick={() => setOpen(false)}>
+        <div className="bd-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Book a demo">
+          <button className="bd-close" aria-label="Close" onClick={() => setOpen(false)}>×</button>
+          <Eyebrow>Book a demo</Eyebrow>
+          <h2 className="bd-title">See Eirim on your own calls</h2>
+          <p className="bd-sub">A free 15-minute walkthrough. Tell us where to reach you and we'll set it up.</p>
+          <LeadForm source="cta-modal" onDone={() => setOpen(false)} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- About / Team ---------- */
+function About() {
+  // TODO: replace placeholder names/roles/bios with your real team.
+  const team = [
+    { name: "Founder Name", role: "Co-founder & CEO", bio: "Two decades in Irish healthcare operations — built and scaled reception teams across multi-site GP groups." },
+    { name: "Founder Name", role: "Co-founder & CTO", bio: "Health-tech engineer who led voice-AI and PMS integration platforms used across hundreds of clinics." },
+    { name: "Advisor Name", role: "Clinical Advisor", bio: "Practising GP focused on patient access and front-desk workflow, keeping Eirim clinically grounded." },
+  ];
+  return (
+    <section className="sec sec-tint" id="about">
+      <div className="wrap">
+        <Reveal>
+          <Eyebrow>About Eirim</Eyebrow>
+          <h2>Built by people who've run<br />the front desk.</h2>
+          <p className="body">Eirim Health is an Irish company on a simple mission: give every practice a front desk that never misses a call. We pair deep healthcare-operations experience with modern voice AI — built for Socrates, HealthOne, and the realities of Irish clinics.</p>
+        </Reveal>
+        <div className="team-grid">
+          {team.map((t, i) => (
+            <Reveal key={i} delay={i * 90}>
+              <div className="team-card">
+                <div className="team-avatar" aria-hidden="true">
+                  {t.name.split(" ").map((w) => w[0]).join("").slice(0, 2)}
+                </div>
+                <h3>{t.name}</h3>
+                <div className="team-role">{t.role}</div>
+                <p>{t.bio}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- FAQ ---------- */
+const FAQS = [
+  ["Is patient data secure and GDPR-compliant?", "Yes. Eirim is built for Irish healthcare: data is hosted in the EU, encrypted in transit and at rest, and processed under a GDPR data-processing agreement. We use least-privilege access and full audit logging, and never sell data or use patient information to train public models."],
+  ["How long does setup take?", "Most practices are live within a fortnight. We connect to your PMS (Socrates or HealthOne), configure your call flows and appointment types, and run a supervised pilot before Eirim answers live calls."],
+  ["What are the contract terms?", "Founding practices get a 60-day trial, free setup, and pricing locked for 24 months. After the trial it's a simple monthly plan — no long lock-in, cancel with 30 days' notice."],
+  ["What happens when the AI can't handle a call?", "Eirim knows its limits. Anything clinical, urgent, or out of scope is warm-transferred to your team or flagged for callback, with a full transcript. It augments your reception — it never overrides clinical judgement."],
+  ["Does it work with our phone system and PMS?", "Yes. Eirim sits alongside your existing phone number and writes bookings, arrivals, and payments straight into Socrates and HealthOne. No rip-and-replace."],
+  ["Which languages does it support?", "English and Gaeilge today, with a warm, Irish-tuned voice and accessibility options (larger type, slower pace) for older patients."],
+];
+function FAQ() {
+  const [open, setOpen] = useState(0);
+  return (
+    <section className="sec" id="faq">
+      <div className="wrap faq-wrap">
+        <Reveal>
+          <Eyebrow>FAQ</Eyebrow>
+          <h2>Questions, answered.</h2>
+        </Reveal>
+        <div className="faq-list">
+          {FAQS.map(([q, a], i) => (
+            <div key={i} className={"faq-item" + (open === i ? " on" : "")}>
+              <button className="faq-q" onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i}>
+                <span>{q}</span>
+                <span className="faq-caret">{open === i ? "–" : "+"}</span>
+              </button>
+              <div className="faq-a">
+                <p>{a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -521,9 +770,12 @@ export default function EirimFrontDesk() {
       <Checkin />
       <Integrations />
       <ROI />
+      <About />
       <Pricing />
+      <FAQ />
       <CTA />
       <Footer />
+      <BookDemo />
     </div>
   );
 }
@@ -602,12 +854,17 @@ const CSS = `
 .s-arrow:hover{background:rgba(255,255,255,.24)}
 .s-prev{left:18px}.s-next{right:18px}
 .s-dots{position:absolute; bottom:24px; left:50%; transform:translateX(-50%); display:flex; gap:10px; z-index:6}
-.hero-sound{position:absolute; bottom:22px; right:28px; z-index:7; display:flex; align-items:center; gap:7px;
-  background:rgba(15,46,42,.55); color:#fff; border:1px solid rgba(255,255,255,.25); backdrop-filter:blur(6px);
-  border-radius:999px; padding:9px 15px; font-size:13px; font-weight:600; font-family:'Figtree',system-ui,sans-serif;
-  cursor:pointer; transition:background .15s}
-.hero-sound:hover{background:rgba(15,46,42,.75)}
-@media(max-width:880px){.hero-sound{bottom:16px; right:16px; padding:8px 13px; font-size:12px}}
+.hero-sound{position:absolute; bottom:14px; right:14px; z-index:7; display:grid; place-items:center;
+  width:32px; height:32px; padding:0; line-height:1;
+  background:rgba(15,46,42,.55); color:#fff; border:1px solid rgba(255,255,255,.28); backdrop-filter:blur(6px);
+  border-radius:50%; font-size:14px; cursor:pointer; transition:background .15s, transform .15s}
+.hero-sound:hover{background:rgba(15,46,42,.85); transform:scale(1.08)}
+.hero-sound::after{content:attr(data-tip); position:absolute; bottom:calc(100% + 8px); right:0;
+  background:rgba(15,46,42,.95); color:#fff; font-size:11.5px; font-weight:600; font-family:'Figtree',system-ui,sans-serif;
+  padding:5px 9px; border-radius:7px; white-space:nowrap; opacity:0; pointer-events:none;
+  transform:translateY(4px); transition:opacity .15s, transform .15s}
+.hero-sound:hover::after{opacity:1; transform:none}
+@media(max-width:880px){.hero-sound{bottom:10px; right:10px; width:30px; height:30px; font-size:13px}}
 .s-dots button{width:36px; height:5px; border-radius:999px; border:none; background:rgba(255,255,255,.28); cursor:pointer; transition:background .2s}
 .s-dots button.on{background:var(--gorse)}
 @media(max-width:880px){
@@ -731,4 +988,64 @@ const CSS = `
 
 /* a11y */
 .eirim :focus-visible{outline:3px solid var(--gorse); outline-offset:3px; border-radius:6px}
+
+/* nav phone */
+.nav-phone{font-weight:700; color:var(--spruce)!important; white-space:nowrap}
+.nav-scrolled .nav-phone{color:var(--spruce)!important}
+@media(max-width:1024px){.nav-phone{display:none}}
+
+/* CTA grid + on-page lead form */
+.cta-grid{display:grid; grid-template-columns:1fr 1fr; gap:clamp(32px,4vw,64px); align-items:center}
+.cta-copy .cta-contact{display:flex; flex-direction:column; gap:8px; margin-top:22px}
+.cta-copy .cta-contact a{color:#fff; font-weight:700; font-size:16px; width:fit-content}
+.cta-copy .cta-contact a:hover{color:var(--gorse)}
+.cta-form-card{background:#fff; color:var(--ink); border-radius:20px; padding:28px; box-shadow:0 34px 80px rgba(0,0,0,.35)}
+.cta-form-card h3{font-size:20px; margin-bottom:16px}
+@media(max-width:880px){.cta-grid{grid-template-columns:1fr; gap:32px}}
+
+/* lead form */
+.lead-form{display:flex; flex-direction:column; gap:13px}
+.lead-row{display:grid; grid-template-columns:1fr 1fr; gap:13px}
+.lead-form label{display:flex; flex-direction:column; gap:5px; font-size:13px; font-weight:600; color:var(--ink)}
+.lead-form input, .lead-form textarea{padding:11px 13px; border:1px solid var(--line); border-radius:10px; font-size:14.5px; font-family:inherit; color:var(--ink); background:#fff; outline:none; resize:vertical}
+.lead-form input:focus, .lead-form textarea:focus{border-color:var(--spruce); box-shadow:0 0 0 3px rgba(30,107,92,.12)}
+.lead-submit{width:100%; text-align:center; margin-top:4px; cursor:pointer; border:none}
+.lead-submit:disabled{opacity:.6}
+.lead-fine{font-size:11.5px; color:rgba(15,46,42,.5); text-align:center; margin:0}
+.lead-err{background:rgba(217,83,79,.12); border:1px solid rgba(217,83,79,.35); color:#b23b36; padding:8px 11px; border-radius:8px; font-size:12.5px}
+.lead-done{text-align:center; padding:14px 8px}
+.lead-check{width:52px; height:52px; margin:0 auto 14px; border-radius:50%; background:var(--spruce); color:#fff; display:grid; place-items:center; font-size:26px; font-weight:800}
+.lead-done h3{font-size:20px; margin-bottom:8px}
+.lead-done p{font-size:14.5px; color:rgba(15,46,42,.72); max-width:34ch; margin:0 auto}
+@media(max-width:560px){.lead-row{grid-template-columns:1fr}}
+
+/* book-demo modal */
+.bd-overlay{position:fixed; inset:0; z-index:10000; background:rgba(15,27,25,.6); backdrop-filter:blur(4px); display:grid; place-items:center; padding:20px; animation:bdfade .2s ease}
+@keyframes bdfade{from{opacity:0}to{opacity:1}}
+.bd-modal{position:relative; background:#fff; color:var(--ink); border-radius:22px; padding:clamp(24px,4vw,40px); width:min(560px,100%); max-height:92vh; overflow-y:auto; box-shadow:0 40px 100px rgba(0,0,0,.5); animation:bdpop .24s cubic-bezier(.2,.8,.2,1)}
+@keyframes bdpop{from{opacity:0; transform:translateY(18px) scale(.98)}to{opacity:1; transform:none}}
+.bd-close{position:absolute; top:14px; right:16px; background:transparent; border:none; font-size:28px; line-height:1; color:rgba(15,46,42,.5); cursor:pointer}
+.bd-close:hover{color:var(--ink)}
+.bd-title{font-size:clamp(24px,3vw,32px); margin:10px 0 8px}
+.bd-sub{font-size:15px; color:rgba(15,46,42,.7); margin-bottom:20px}
+
+/* About / Team */
+.team-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:44px}
+.team-card{background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px; height:100%}
+.team-avatar{width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,var(--spruce),#2A8A76); color:#fff; display:grid; place-items:center; font-weight:800; font-size:20px; margin-bottom:16px}
+.team-card h3{font-size:18px; margin-bottom:3px}
+.team-role{font-size:13px; font-weight:700; color:var(--spruce); margin-bottom:11px}
+.team-card p{font-size:14.5px; color:rgba(15,46,42,.74); line-height:1.55}
+@media(max-width:880px){.team-grid{grid-template-columns:1fr}}
+
+/* FAQ */
+.faq-wrap{max-width:820px}
+.faq-list{margin-top:36px; display:flex; flex-direction:column; gap:12px}
+.faq-item{border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#fff; transition:box-shadow .2s}
+.faq-item.on{box-shadow:0 16px 40px rgba(15,46,42,.1)}
+.faq-q{width:100%; display:flex; justify-content:space-between; align-items:center; gap:16px; background:transparent; border:none; padding:18px 22px; text-align:left; cursor:pointer; font-family:'Bricolage Grotesque',sans-serif; font-weight:700; font-size:17px; color:var(--ink)}
+.faq-caret{flex:none; font-size:22px; color:var(--spruce); font-weight:700}
+.faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease}
+.faq-item.on .faq-a{max-height:320px}
+.faq-a p{padding:0 22px 20px; font-size:15px; color:rgba(15,46,42,.76); line-height:1.6; margin:0}
 `;
