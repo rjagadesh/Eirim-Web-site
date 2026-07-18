@@ -19,3 +19,7 @@ creds.json
 .DS_Store
 .vscode/
 *.local
+
+# Local Netlify folder
+.netlify
+deno.lock
