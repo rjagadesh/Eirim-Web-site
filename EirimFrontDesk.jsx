@@ -577,8 +577,11 @@ const CSS = `
   linear-gradient(160deg, var(--ink) 0%, var(--spruce-deep) 58%, var(--spruce) 100%);
   color:#fff; overflow:hidden; padding:120px 0 90px}
 .hero-glow{position:absolute; width:640px; height:640px; border-radius:50%; background:radial-gradient(circle, rgba(242,193,78,.14), transparent 65%); top:-180px; right:-140px; pointer-events:none}
-.slide{grid-area:1/1; opacity:0; transform:translateX(34px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); pointer-events:none; display:flex; align-items:center}
-.slide-on{opacity:1; transform:none; pointer-events:auto}
+.slide{grid-area:1/1; opacity:0; transform:translateX(80px) scale(.94); filter:blur(8px);
+  transition:opacity .85s ease, transform 1s cubic-bezier(.16,.84,.24,1), filter .7s ease;
+  pointer-events:none; display:flex; align-items:center; will-change:opacity, transform, filter}
+.slide-on{opacity:1; transform:none; filter:none; pointer-events:auto; transition-delay:.05s}
+@media(prefers-reduced-motion:reduce){.slide{transition:opacity .3s ease; transform:none; filter:none}}
 .hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; width:100%}
 .hero h1{font-size:clamp(38px,5.6vw,66px); margin:16px 0 20px}
 .hero h1 em{font-style:normal; color:var(--gorse)}
