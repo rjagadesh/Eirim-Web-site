@@ -9,6 +9,9 @@ dist-ssr/
 *.log
 npm-debug.log*
 
+# Secrets — never commit API keys
+creds.json
+
 # Editor / OS
 .DS_Store
 .vscode/

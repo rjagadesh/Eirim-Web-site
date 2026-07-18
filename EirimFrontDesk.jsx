@@ -75,7 +75,7 @@ function Nav() {
     <nav className={"nav" + (scrolled ? " nav-scrolled" : "")}>
       <div className="wrap nav-in">
         <a href="#top" className="brand">
-          <ShamrockMark size={40} />
+          <img src="/logo.png" alt="Eirim" className="brand-logo" />
         </a>
         <div className="nav-links">
           <a href="#voice">Voice</a>
@@ -143,12 +143,20 @@ function CallDemo({ script = CALL_SCRIPT, header, sub }) {
 function Hero() {
   const [idx, setIdx] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const vid0 = useRef(null);
+  const vid1 = useRef(null);
   useEffect(() => {
     if (paused) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = setInterval(() => setIdx((i) => (i + 1) % 2), 7000);
     return () => clearInterval(id);
   }, [paused]);
+  // Only the active slide's video carries sound; the other stays muted.
+  useEffect(() => {
+    if (vid0.current) vid0.current.muted = muted || idx !== 0;
+    if (vid1.current) vid1.current.muted = muted || idx !== 1;
+  }, [muted, idx]);
 
   return (
     <header className="hero" id="top" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
@@ -168,6 +176,7 @@ function Hero() {
           </div>
           <div className="hero-art">
             <video
+              ref={vid0}
               src={IMG.heroVideo}
               autoPlay
               muted
@@ -192,11 +201,27 @@ function Hero() {
             <div className="hero-note">Unlimited simultaneous calls · 24/7 · €250/month + €0.10/min</div>
           </div>
           <div className="hero-art hero-art-full">
-            <img src={IMG.voiceAgent} alt="Eirim Voice AI agent answering patient calls alongside the reception team" />
+            <video
+              ref={vid1}
+              src="/voice-ai.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              aria-label="Eirim Voice AI agent answering patient calls alongside the reception team"
+            />
           </div>
         </div>
       </div>
 
+      <button
+        className="hero-sound"
+        aria-label={muted ? "Unmute video" : "Mute video"}
+        aria-pressed={!muted}
+        onClick={() => setMuted((m) => !m)}
+      >
+        {muted ? "🔇" : "🔊"} {muted ? "Sound off" : "Sound on"}
+      </button>
       <button className="s-arrow s-prev" aria-label="Previous slide" onClick={() => setIdx((i) => (i + 1) % 2)}>‹</button>
       <button className="s-arrow s-next" aria-label="Next slide" onClick={() => setIdx((i) => (i + 1) % 2)}>›</button>
       <div className="s-dots">
@@ -281,6 +306,7 @@ function Voice() {
           </Reveal>
         </div>
         <Reveal delay={150}>
+          <img className="voice-photo" src="/voice-ai-image.png" alt="Eirim Voice AI receptionist answering patient calls" />
           <CallDemo header="EIRIM VOICE · LIVE" sub="MON 08:02 · 23 CALLS IN PROGRESS" />
         </Reveal>
       </div>
@@ -515,7 +541,7 @@ const CSS = `
 .eirim *{box-sizing:border-box; margin:0}
 .eirim a{text-decoration:none; color:inherit}
 .eirim img{display:block; max-width:100%}
-.wrap{max-width:1140px; margin:0 auto; padding:0 28px}
+.wrap{max-width:1760px; margin:0 auto; padding:0 clamp(20px,3.5vw,56px)}
 .eirim h1,.eirim h2{font-family:'Bricolage Grotesque',sans-serif; letter-spacing:-0.035em; line-height:1.04; font-weight:800}
 .eirim h2{font-size:clamp(30px,4.4vw,52px); margin:14px 0 18px}
 .eirim h3{font-family:'Bricolage Grotesque',sans-serif; font-weight:700; letter-spacing:-0.01em}
@@ -536,6 +562,7 @@ const CSS = `
 .nav-scrolled{box-shadow:0 10px 34px rgba(15,46,42,.14); padding:10px 0}
 .nav-in{display:flex; align-items:center; justify-content:space-between}
 .brand{display:flex; align-items:center; gap:10px; font-family:'Bricolage Grotesque',sans-serif; font-size:19px; color:var(--ink)}
+.brand-logo{height:72px; width:auto; display:block}
 .brand b{font-weight:800}
 .brand span{line-height:1}
 .nav-links{display:flex; align-items:center; gap:26px; font-weight:600; font-size:15px; color:rgba(15,46,42,.72)}
@@ -572,6 +599,12 @@ const CSS = `
 .s-arrow:hover{background:rgba(255,255,255,.24)}
 .s-prev{left:18px}.s-next{right:18px}
 .s-dots{position:absolute; bottom:24px; left:50%; transform:translateX(-50%); display:flex; gap:10px; z-index:6}
+.hero-sound{position:absolute; bottom:22px; right:28px; z-index:7; display:flex; align-items:center; gap:7px;
+  background:rgba(15,46,42,.55); color:#fff; border:1px solid rgba(255,255,255,.25); backdrop-filter:blur(6px);
+  border-radius:999px; padding:9px 15px; font-size:13px; font-weight:600; font-family:'Figtree',system-ui,sans-serif;
+  cursor:pointer; transition:background .15s}
+.hero-sound:hover{background:rgba(15,46,42,.75)}
+@media(max-width:880px){.hero-sound{bottom:16px; right:16px; padding:8px 13px; font-size:12px}}
 .s-dots button{width:36px; height:5px; border-radius:999px; border:none; background:rgba(255,255,255,.28); cursor:pointer; transition:background .2s}
 .s-dots button.on{background:var(--gorse)}
 @media(max-width:880px){
@@ -621,6 +654,7 @@ const CSS = `
 
 /* voice */
 .voice-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center}
+.voice-photo{width:100%; border-radius:20px; margin-bottom:24px; box-shadow:0 30px 70px rgba(0,0,0,.35); display:block}
 .ticks{list-style:none; padding:0; margin-top:26px; display:flex; flex-direction:column; gap:13px}
 .ticks li{padding-left:34px; position:relative; font-size:16px; color:rgba(255,255,255,.88)}
 .ticks li:before{content:"✓"; position:absolute; left:0; top:-1px; width:23px; height:23px; border-radius:50%; background:var(--gorse); color:var(--ink); font-weight:800; font-size:13px; display:grid; place-items:center}
