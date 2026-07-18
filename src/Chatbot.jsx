@@ -1,18 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import brief from "../chatbot-brief.md?raw";
 
-// Local creds.json is optional and gitignored. import.meta.glob does NOT break
-// the build when the file is absent (e.g. on Netlify), unlike a static import.
-// For deployments, set VITE_OPENAI_API_KEY / VITE_OPENAI_MODEL as env vars.
-const credsModules = import.meta.glob("../creds*.json", { eager: true });
-const creds = Object.values(credsModules)[0]?.default || {};
-
-const API_URL = "https://api.openai.com/v1/chat/completions";
-const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || creds.OPENAI_API_KEY || "";
-const MODEL = import.meta.env.VITE_OPENAI_MODEL || creds.OPENAI_MODEL || "gpt-4o-mini";
-const KEY_MISSING = !API_KEY || API_KEY.startsWith("sk-REPLACE");
+// The chatbot talks to a Netlify Function (netlify/functions/chat.mjs), which
+// holds the Anthropic key server-side, uses Claude Haiku, and persists each
+// transaction to Netlify Blobs. The browser never sees the API key.
+const CHAT_ENDPOINT = "/.netlify/functions/chat";
 
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+const makeId = () =>
+  (globalThis.crypto?.randomUUID?.() ||
+    `s-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
 
 export default function Chatbot() {
   const [open, setOpen] = useState(false);
@@ -23,6 +19,7 @@ export default function Chatbot() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [sessionId, setSessionId] = useState(null);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -33,6 +30,8 @@ export default function Chatbot() {
     e.preventDefault();
     setTouched(true);
     if (!name.trim() || !isEmail(email)) return;
+    const sid = makeId();
+    setSessionId(sid);
     setStarted(true);
     setMessages([
       {
@@ -40,6 +39,18 @@ export default function Chatbot() {
         content: `Hi ${name.trim().split(" ")[0]}! I'm Aoife, the Eirim Front Desk assistant. Ask me anything about how Eirim can answer your clinic's calls, book appointments, and check patients in.`,
       },
     ]);
+    // Log the visitor (fire-and-forget; never blocks the chat).
+    fetch("/.netlify/functions/visitor", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: sid,
+        name: name.trim(),
+        email: email.trim(),
+        page: window.location.pathname,
+        referrer: document.referrer || null,
+      }),
+    }).catch(() => {});
   };
 
   const send = async (e) => {
@@ -51,45 +62,22 @@ export default function Chatbot() {
     setInput("");
     setBusy(true);
 
-    if (KEY_MISSING) {
-      setMessages((m) => [
-        ...m,
-        {
-          role: "assistant",
-          content:
-            "⚠️ No OpenAI API key is configured yet. Add your key to creds.json (OPENAI_API_KEY) and restart the dev server to enable live chat.",
-        },
-      ]);
-      setBusy(false);
-      return;
-    }
-
     try {
-      const res = await fetch(API_URL, {
+      const res = await fetch(CHAT_ENDPOINT, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: MODEL,
-          temperature: 0.6,
-          max_tokens: 500,
-          messages: [
-            {
-              role: "system",
-              content: `${brief}\n\nThe visitor's name is ${name.trim()} and their email is ${email.trim()}.`,
-            },
-            ...next.map((m) => ({ role: m.role, content: m.content })),
-          ],
+          sessionId,
+          name: name.trim(),
+          email: email.trim(),
+          messages: next.map((m) => ({ role: m.role, content: m.content })),
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
-      const reply = data.choices?.[0]?.message?.content?.trim();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
       setMessages((m) => [
         ...m,
-        { role: "assistant", content: reply || "Sorry, I didn't catch that — could you rephrase?" },
+        { role: "assistant", content: data.reply || "Sorry, I didn't catch that — could you rephrase?" },
       ]);
     } catch (err) {
       setMessages((m) => [
@@ -110,8 +98,7 @@ export default function Chatbot() {
 
       {!open && (
         <button className="cbt-launch" onClick={() => setOpen(true)} aria-label="Open chat">
-          <span className="cbt-launch-dot" />
-          Chat with us
+          <img src="/chat-bot.png" alt="" className="cbt-launch-img" />
         </button>
       )}
 
@@ -193,11 +180,12 @@ export default function Chatbot() {
 }
 
 const CSS = `
-.cbt-launch{position:fixed; right:24px; bottom:24px; z-index:9999; display:flex; align-items:center; gap:9px;
-  background:#1E6B5C; color:#fff; border:none; border-radius:999px; padding:14px 22px; font-size:15px; font-weight:600;
-  font-family:'Figtree',system-ui,sans-serif; cursor:pointer; box-shadow:0 14px 40px rgba(15,46,42,.35); transition:transform .15s, box-shadow .15s}
-.cbt-launch:hover{transform:translateY(-2px); box-shadow:0 18px 48px rgba(15,46,42,.42)}
-.cbt-launch-dot{width:9px; height:9px; border-radius:50%; background:#3DDC97; box-shadow:0 0 10px #3DDC97}
+.cbt-launch{position:fixed; right:22px; bottom:22px; z-index:9999; width:80px; height:80px; padding:0;
+  background:transparent; border:none; cursor:pointer; transition:transform .18s ease; display:block; animation:cbtbob 3s ease-in-out infinite}
+.cbt-launch:hover{transform:translateY(-5px) scale(1.06); animation-play-state:paused}
+.cbt-launch-img{width:100%; height:100%; object-fit:cover; border-radius:22px; display:block; box-shadow:0 12px 30px rgba(15,46,42,.42)}
+@keyframes cbtbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+@media(prefers-reduced-motion:reduce){.cbt-launch{animation:none}}
 
 .cbt-panel{position:fixed; right:24px; bottom:24px; z-index:9999; width:min(380px,calc(100vw - 32px)); height:min(560px,calc(100vh - 48px));
   background:#fff; border-radius:20px; box-shadow:0 30px 80px rgba(15,46,42,.32); display:flex; flex-direction:column; overflow:hidden;

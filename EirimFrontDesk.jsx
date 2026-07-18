@@ -582,7 +582,7 @@ const CSS = `
   pointer-events:none; display:flex; align-items:center; will-change:opacity, transform, filter}
 .slide-on{opacity:1; transform:none; filter:none; pointer-events:auto; transition-delay:.05s}
 @media(prefers-reduced-motion:reduce){.slide{transition:opacity .3s ease; transform:none; filter:none}}
-.hero-grid{display:grid; grid-template-columns:1.05fr .95fr; gap:56px; align-items:center; width:100%}
+.hero-grid{display:grid; grid-template-columns:.88fr 1.12fr; gap:48px; align-items:center; width:100%}
 .hero h1{font-size:clamp(38px,5.6vw,66px); margin:16px 0 20px}
 .hero h1 em{font-style:normal; color:var(--gorse)}
 .lead{font-size:19px; color:rgba(255,255,255,.85); max-width:50ch}
