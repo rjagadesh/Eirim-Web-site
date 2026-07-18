@@ -562,7 +562,7 @@ const CSS = `
 .nav-scrolled{box-shadow:0 10px 34px rgba(15,46,42,.14); padding:6px 0}
 .nav-in{display:flex; align-items:center; justify-content:space-between}
 .brand{display:flex; align-items:center; gap:10px; font-family:'Bricolage Grotesque',sans-serif; font-size:19px; color:var(--ink)}
-.brand-logo{height:44px; width:auto; display:block}
+.brand-logo{height:50px; width:auto; display:block}
 .brand b{font-weight:800}
 .brand span{line-height:1}
 .nav-links{display:flex; align-items:center; gap:26px; font-weight:600; font-size:15px; color:rgba(15,46,42,.72)}
