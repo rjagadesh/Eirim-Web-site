@@ -11,6 +11,9 @@ npm-debug.log*
 
 # Secrets — never commit API keys
 creds.json
+.env
+.env.local
+.env.*.local
 
 # Editor / OS
 .DS_Store

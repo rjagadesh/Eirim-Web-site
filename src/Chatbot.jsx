@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import creds from "../creds.json";
 import brief from "../chatbot-brief.md?raw";
 
+// Local creds.json is optional and gitignored. import.meta.glob does NOT break
+// the build when the file is absent (e.g. on Netlify), unlike a static import.
+// For deployments, set VITE_OPENAI_API_KEY / VITE_OPENAI_MODEL as env vars.
+const credsModules = import.meta.glob("../creds*.json", { eager: true });
+const creds = Object.values(credsModules)[0]?.default || {};
+
 const API_URL = "https://api.openai.com/v1/chat/completions";
-const MODEL = creds.OPENAI_MODEL || "gpt-4o-mini";
-const KEY_MISSING =
-  !creds.OPENAI_API_KEY || creds.OPENAI_API_KEY.startsWith("sk-REPLACE");
+const API_KEY = import.meta.env.VITE_OPENAI_API_KEY || creds.OPENAI_API_KEY || "";
+const MODEL = import.meta.env.VITE_OPENAI_MODEL || creds.OPENAI_MODEL || "gpt-4o-mini";
+const KEY_MISSING = !API_KEY || API_KEY.startsWith("sk-REPLACE");
 
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
@@ -64,7 +69,7 @@ export default function Chatbot() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${creds.OPENAI_API_KEY}`,
+          Authorization: `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
           model: MODEL,
