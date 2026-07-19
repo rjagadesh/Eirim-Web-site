@@ -50,6 +50,18 @@ export default function Admin() {
     }
   };
 
+  // Keep the admin route out of search engines (index.html defaults to index,follow).
+  useEffect(() => {
+    document.title = "Admin · Eirim";
+    const m = document.createElement("meta");
+    m.name = "robots";
+    m.content = "noindex, nofollow";
+    document.head.appendChild(m);
+    return () => {
+      document.head.removeChild(m);
+    };
+  }, []);
+
   // Auto-login if a password is already stored this session
   useEffect(() => {
     if (pw) load(pw);

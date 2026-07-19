@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import EirimFrontDesk from "../EirimFrontDesk.jsx";
+import EirimFrontDesk from "./EirimFrontDesk.jsx";
 import Chatbot from "./Chatbot.jsx";
 import Admin from "./Admin.jsx";
 import { track } from "./track.js";

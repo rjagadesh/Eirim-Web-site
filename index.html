@@ -5,11 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="/fav.png" />
 
+    <!-- Faster web-font loading (removes render-blocking hop) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap"
+    />
+
     <title>Eirim Front Desk — AI Receptionist for Clinics</title>
     <meta
       name="description"
-      content="Eirim Front Desk is an AI receptionist for clinics: it answers every call 24/7, books and reschedules appointments, checks patients in at a kiosk, and writes straight into Socrates & HealthOne. Live within a fortnight."
+      content="AI receptionist for clinics that answers every call 24/7, books appointments and checks patients in — built for Socrates &amp; HealthOne. Book a free demo."
     />
+    <meta name="robots" content="index, follow" />
 
     <!-- Canonical — update to your live domain -->
     <link rel="canonical" href="https://eirimhealth.com/" />
@@ -17,26 +26,138 @@
     <!-- Open Graph (LinkedIn, Facebook, iMessage, Slack) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Eirim Health" />
-    <meta property="og:title" content="Eirim Front Desk — the AI receptionist your clinic never misses a call with" />
+    <meta property="og:title" content="Eirim Front Desk — AI Receptionist for Clinics" />
     <meta
       property="og:description"
-      content="Answers every call 24/7, books appointments, and checks patients in — integrated with Socrates & HealthOne. Book a 15-minute demo."
+      content="Answers every call 24/7, books appointments, and checks patients in — integrated with Socrates &amp; HealthOne. Book a 15-minute demo."
     />
     <meta property="og:url" content="https://eirimhealth.com/" />
-    <meta property="og:image" content="https://eirimhealth.com/og-image.png" />
+    <meta property="og:image" content="https://eirimhealth.com/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Eirim Front Desk — AI receptionist and self check-in for clinics" />
+    <meta property="og:locale" content="en_IE" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Eirim Front Desk — AI Receptionist for Clinics" />
     <meta
       name="twitter:description"
-      content="Answers every call 24/7, books appointments, and checks patients in — integrated with Socrates & HealthOne."
+      content="Answers every call 24/7, books appointments, and checks patients in — integrated with Socrates &amp; HealthOne."
     />
-    <meta name="twitter:image" content="https://eirimhealth.com/og-image.png" />
+    <meta name="twitter:image" content="https://eirimhealth.com/og-image.jpg" />
 
     <meta name="theme-color" content="#0F2E2A" />
+
+    <!-- Structured data: Organization, WebSite, Service, FAQ -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://eirimhealth.com/#organization",
+            "name": "Eirim Health",
+            "url": "https://eirimhealth.com/",
+            "logo": "https://eirimhealth.com/logo.png",
+            "description": "AI receptionist and self check-in for healthcare clinics — answers calls 24/7, books appointments and integrates with Socrates and HealthOne.",
+            "email": "hello@eirimhealth.com",
+            "telephone": "+353-1-555-1234",
+            "areaServed": "IE",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Dublin",
+              "addressCountry": "IE"
+            }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://eirimhealth.com/#website",
+            "url": "https://eirimhealth.com/",
+            "name": "Eirim Front Desk",
+            "publisher": { "@id": "https://eirimhealth.com/#organization" },
+            "inLanguage": "en-IE"
+          },
+          {
+            "@type": "Service",
+            "name": "Eirim Front Desk — AI receptionist for clinics",
+            "serviceType": "AI receptionist and patient self check-in",
+            "provider": { "@id": "https://eirimhealth.com/#organization" },
+            "areaServed": { "@type": "Country", "name": "Ireland" },
+            "audience": {
+              "@type": "Audience",
+              "audienceType": "Healthcare practices, GP surgeries, dental practices and clinics"
+            },
+            "description": "Voice AI that answers every clinic call 24/7, books and reschedules appointments, and a kiosk that checks patients in — integrated with Socrates and HealthOne.",
+            "offers": {
+              "@type": "Offer",
+              "priceCurrency": "EUR",
+              "price": "250",
+              "priceSpecification": {
+                "@type": "UnitPriceSpecification",
+                "price": "250",
+                "priceCurrency": "EUR",
+                "unitText": "MONTH"
+              }
+            }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Is patient data secure and GDPR-compliant?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Eirim is built for Irish healthcare: data is hosted in the EU, encrypted in transit and at rest, and processed under a GDPR data-processing agreement. We use least-privilege access and full audit logging, and never sell data or use patient information to train public models."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How long does setup take?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Most practices are live within a fortnight. We connect to your PMS (Socrates or HealthOne), configure your call flows and appointment types, and run a supervised pilot before Eirim answers live calls."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What are the contract terms?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Founding practices get a 60-day trial, free setup, and pricing locked for 24 months. After the trial it is a simple monthly plan — no long lock-in, cancel with 30 days notice."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What happens when the AI can't handle a call?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Eirim knows its limits. Anything clinical, urgent, or out of scope is warm-transferred to your team or flagged for callback, with a full transcript. It augments your reception and never overrides clinical judgement."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does it work with our phone system and PMS?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Eirim sits alongside your existing phone number and writes bookings, arrivals, and payments straight into Socrates and HealthOne. No rip-and-replace."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Which languages does it support?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "English and Gaeilge today, with a warm, Irish-tuned voice and accessibility options such as larger type and a slower pace for older patients."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

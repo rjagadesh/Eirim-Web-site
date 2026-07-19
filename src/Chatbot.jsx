@@ -98,7 +98,7 @@ export default function Chatbot() {
 
       {!open && (
         <button className="cbt-launch" onClick={() => setOpen(true)} aria-label="Open chat">
-          <img src="/chat-bot.png" alt="" className="cbt-launch-img" />
+          <img src="/chat-bot.webp" alt="Open the Eirim chat assistant" className="cbt-launch-img" />
         </button>
       )}
 
