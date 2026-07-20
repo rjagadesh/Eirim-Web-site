@@ -9,6 +9,7 @@ import {
   sendFollowups,
   syncInbox,
 } from "../lib/campaigns-core.mjs";
+import { authorize } from "../lib/auth.mjs";
 
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
@@ -44,12 +45,8 @@ const rid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice
 
 export default async (req) => {
   const cfg = config();
-  if (!cfg.adminPassword || cfg.adminPassword === "change-me-admin-password") {
-    return json({ error: "Admin password not configured." }, 500);
-  }
-  if ((req.headers.get("x-admin-password") || "") !== cfg.adminPassword) {
-    return json({ error: "Unauthorized" }, 401);
-  }
+  const auth = authorize(req, "campaigns");
+  if (!auth.ok) return json({ error: auth.error }, auth.status);
 
   let body = {};
   try {

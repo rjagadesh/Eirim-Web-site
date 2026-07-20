@@ -1,20 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
 import { getStore } from "@netlify/blobs";
-
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), {
-    status,
-    headers: { "content-type": "application/json" },
-  });
-
-function readCreds() {
-  try {
-    return JSON.parse(fs.readFileSync(path.join(process.cwd(), "creds.json"), "utf8"));
-  } catch {
-    return {};
-  }
-}
+import { authorize, json } from "../lib/auth.mjs";
 
 async function dumpStore(name, limit) {
   const store = getStore(name);
@@ -35,21 +20,16 @@ async function dumpStore(name, limit) {
 }
 
 export default async (req) => {
-  const creds = readCreds();
-  const PW = process.env.ADMIN_PASSWORD || creds.ADMIN_PASSWORD || "";
-  if (!PW || PW === "change-me-admin-password") {
-    return json({ error: "Admin password not configured. Set ADMIN_PASSWORD." }, 500);
-  }
-
-  const given = req.headers.get("x-admin-password") || "";
-  if (given !== PW) return json({ error: "Unauthorized" }, 401);
+  const auth = authorize(req, null); // any authenticated principal
+  if (!auth.ok) return json({ error: auth.error }, auth.status);
+  const can = (m) => auth.principal.owner || (auth.principal.modules || []).includes(m);
 
   try {
     const [transcripts, visitors, pageviews, leads] = await Promise.all([
-      dumpStore("chat-transcripts"),
-      dumpStore("visitors"),
-      dumpStore("pageviews", 1000),
-      dumpStore("leads"),
+      can("chat") ? dumpStore("chat-transcripts") : [],
+      can("chat") ? dumpStore("visitors") : [],
+      can("traffic") ? dumpStore("pageviews", 1000) : [],
+      can("leads") ? dumpStore("leads") : [],
     ]);
     transcripts.sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
     visitors.sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")));

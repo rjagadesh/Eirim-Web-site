@@ -1,26 +1,13 @@
-import fs from "node:fs";
-import path from "node:path";
 import { getStore } from "@netlify/blobs";
-
-const json = (obj, status = 200) =>
-  new Response(JSON.stringify(obj), { status, headers: { "content-type": "application/json" } });
-
-function adminPassword() {
-  let c = {};
-  try {
-    c = JSON.parse(fs.readFileSync(path.join(process.cwd(), "creds.json"), "utf8"));
-  } catch {}
-  return process.env.ADMIN_PASSWORD || c.ADMIN_PASSWORD || "";
-}
+import { authorize, json } from "../lib/auth.mjs";
 
 const store = () => getStore("finance");
 const rid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
 // Entry: { id, date:"YYYY-MM-DD", type:"income"|"expense", category, amount, description, party }
 export default async (req) => {
-  const PW = adminPassword();
-  if (!PW || PW === "change-me-admin-password") return json({ error: "Admin password not configured." }, 500);
-  if ((req.headers.get("x-admin-password") || "") !== PW) return json({ error: "Unauthorized" }, 401);
+  const auth = authorize(req, "financials");
+  if (!auth.ok) return json({ error: auth.error }, auth.status);
 
   let body = {};
   try {

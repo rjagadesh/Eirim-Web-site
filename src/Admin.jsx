@@ -3,6 +3,8 @@ import Campaigns from "./Campaigns.jsx";
 import Finance from "./Finance.jsx";
 import { Contacts, ContactDetail } from "./Contacts.jsx";
 import Pipeline from "./Pipeline.jsx";
+import Tickets from "./Tickets.jsx";
+import Settings from "./Settings.jsx";
 
 const DATA_ENDPOINT = "/.netlify/functions/admin-data";
 const PW_KEY = "eirim_admin_pw";
@@ -26,85 +28,98 @@ const tally = (arr, keyFn) => {
   return [...m.entries()].sort((a, b) => b[1] - a[1]);
 };
 
+const SKEY = "eirim_admin_session";
+const TAB_ORDER = ["contacts", "pipeline", "campaigns", "financials", "leads", "traffic", "chat", "tickets", "settings"];
+const readSession = () => { try { return JSON.parse(sessionStorage.getItem(SKEY) || "null"); } catch { return null; } };
+const firstTab = (sess) => TAB_ORDER.find((m) => sess?.role === "owner" || (sess?.modules || []).includes(m)) || "contacts";
+
 export default function Admin() {
-  const [pw, setPw] = useState(sessionStorage.getItem(PW_KEY) || "");
+  const saved = readSession();
+  const [pw, setPw] = useState(saved?.token || ""); // token sent as x-admin-password
+  const [session, setSession] = useState(saved || null);
+  const [email, setEmail] = useState("");
+  const [pwInput, setPwInput] = useState("");
   const [authed, setAuthed] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
-  const [tab, setTab] = useState("leads");
-  const [chatSub, setChatSub] = useState("transcripts"); // sub-view of the Chatbot tab
-  const [contactEmail, setContactEmail] = useState(null); // open contact detail
+  const [tab, setTab] = useState(saved ? firstTab(saved) : "contacts");
+  const [chatSub, setChatSub] = useState("transcripts");
+  const [contactEmail, setContactEmail] = useState(null);
   const openContact = (email) => email && setContactEmail(email);
   const [openSession, setOpenSession] = useState(null);
 
-  const load = async (password) => {
+  const can = (m) => session?.role === "owner" || (session?.modules || []).includes(m);
+
+  const load = async (token) => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(DATA_ENDPOINT, { headers: { "x-admin-password": password } });
+      const res = await fetch(DATA_ENDPOINT, { headers: { "x-admin-password": token } });
       const body = await res.json().catch(() => ({}));
-      if (res.status === 401) throw new Error("Wrong password.");
+      if (res.status === 401) { logout(); throw new Error("Session expired — please sign in again."); }
       if (!res.ok) throw new Error(body?.error || `HTTP ${res.status}`);
       setData(body);
       setAuthed(true);
-      sessionStorage.setItem(PW_KEY, password);
     } catch (err) {
       setError(err.message);
-      setAuthed(false);
     } finally {
       setLoading(false);
     }
   };
 
-  // Keep the admin route out of search engines (index.html defaults to index,follow).
+  const signIn = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("/.netlify/functions/users", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "login", email, password: pwInput }),
+      });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(d.error || "Sign-in failed.");
+      const sess = { token: d.token, name: d.name, role: d.role, modules: d.modules };
+      sessionStorage.setItem(SKEY, JSON.stringify(sess));
+      setSession(sess);
+      setPw(d.token);
+      setTab(firstTab(sess));
+      await load(d.token);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     document.title = "Admin · Eirim";
     const m = document.createElement("meta");
-    m.name = "robots";
-    m.content = "noindex, nofollow";
+    m.name = "robots"; m.content = "noindex, nofollow";
     document.head.appendChild(m);
-    return () => {
-      document.head.removeChild(m);
-    };
+    return () => document.head.removeChild(m);
   }, []);
 
-  // Auto-login if a password is already stored this session
   useEffect(() => {
-    if (pw) load(pw);
+    if (saved?.token) load(saved.token);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const logout = () => {
-    sessionStorage.removeItem(PW_KEY);
-    setAuthed(false);
-    setData(null);
-    setPw("");
+    sessionStorage.removeItem(SKEY);
+    setAuthed(false); setData(null); setPw(""); setSession(null);
   };
 
   if (!authed) {
     return (
       <div className="ad-wrap ad-center">
         <style>{CSS}</style>
-        <form
-          className="ad-login"
-          onSubmit={(e) => {
-            e.preventDefault();
-            load(pw);
-          }}
-        >
+        <form className="ad-login" onSubmit={signIn}>
           <h1>Eirim Admin</h1>
-          <p>Restricted area. Enter the admin password.</p>
-          <input
-            type="password"
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-            placeholder="Admin password"
-            autoFocus
-          />
-          <button type="submit" disabled={loading || !pw}>
-            {loading ? "Checking…" : "Sign in"}
-          </button>
+          <p>Sign in with your account, or leave email blank and use the owner password.</p>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (blank = owner)" autoComplete="username" />
+          <input type="password" value={pwInput} onChange={(e) => setPwInput(e.target.value)} placeholder="Password" autoComplete="current-password" autoFocus />
+          <button type="submit" disabled={loading || !pwInput}>{loading ? "Checking…" : "Sign in"}</button>
           {error && <div className="ad-err">{error}</div>}
         </form>
       </div>
@@ -124,22 +139,25 @@ export default function Admin() {
       <aside className="ad-side">
         <div className="ad-side-brand">Eirim <b>Admin</b></div>
         <nav className="ad-nav">
-          <button className={tab === "contacts" ? "on" : ""} onClick={() => setTab("contacts")}>👤 Contacts</button>
-          <button className={tab === "pipeline" ? "on" : ""} onClick={() => setTab("pipeline")}>🗂 Pipeline</button>
-          <button className={tab === "campaigns" ? "on" : ""} onClick={() => setTab("campaigns")}>📣 Campaigns</button>
-          <button className={tab === "financials" ? "on" : ""} onClick={() => setTab("financials")}>💶 Financials</button>
-          <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>📥 Demo requests</button>
-          <button className={tab === "traffic" ? "on" : ""} onClick={() => setTab("traffic")}>📊 Traffic</button>
-          <button className={tab === "chat" ? "on" : ""} onClick={() => setTab("chat")}>💬 Chatbot</button>
+          {can("contacts") && <button className={tab === "contacts" ? "on" : ""} onClick={() => setTab("contacts")}>👤 Contacts</button>}
+          {can("pipeline") && <button className={tab === "pipeline" ? "on" : ""} onClick={() => setTab("pipeline")}>🗂 Pipeline</button>}
+          {can("campaigns") && <button className={tab === "campaigns" ? "on" : ""} onClick={() => setTab("campaigns")}>📣 Campaigns</button>}
+          {can("financials") && <button className={tab === "financials" ? "on" : ""} onClick={() => setTab("financials")}>💶 Financials</button>}
+          {can("leads") && <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>📥 Demo requests</button>}
+          {can("tickets") && <button className={tab === "tickets" ? "on" : ""} onClick={() => setTab("tickets")}>🎫 Tickets</button>}
+          {can("traffic") && <button className={tab === "traffic" ? "on" : ""} onClick={() => setTab("traffic")}>📊 Traffic</button>}
+          {can("chat") && <button className={tab === "chat" ? "on" : ""} onClick={() => setTab("chat")}>💬 Chatbot</button>}
+          {can("settings") && <button className={tab === "settings" ? "on" : ""} onClick={() => setTab("settings")}>⚙️ Settings</button>}
         </nav>
         <div className="ad-side-foot">
+          <div className="ad-user">{session?.name || "Owner"}<span>{session?.role || "owner"}</span></div>
           <button className="ad-ghost" onClick={() => load(pw)} disabled={loading}>{loading ? "Refreshing…" : "Refresh"}</button>
           <button className="ad-ghost" onClick={logout}>Log out</button>
         </div>
       </aside>
 
       <main className="ad-main">
-        {!["campaigns", "financials", "contacts", "pipeline"].includes(tab) && (
+        {!["campaigns", "financials", "contacts", "pipeline", "tickets", "settings"].includes(tab) && (
           <div className="ad-stats">
             <div className="ad-stat ad-stat-hot"><b>{counts.leads ?? leads.length}</b><span>Demo requests</span></div>
             <div className="ad-stat"><b>{counts.pageviews ?? pageviews.length}</b><span>Pageviews</span></div>
@@ -154,6 +172,10 @@ export default function Admin() {
       {tab === "contacts" && <Contacts pw={pw} onOpen={openContact} />}
 
       {tab === "pipeline" && <Pipeline pw={pw} onOpen={openContact} />}
+
+      {tab === "tickets" && can("tickets") && <Tickets pw={pw} />}
+
+      {tab === "settings" && can("settings") && <Settings pw={pw} session={session} />}
 
       {tab === "campaigns" && <Campaigns pw={pw} leads={leads} visitors={visitors} />}
 
@@ -381,6 +403,7 @@ const CSS = `
 .ad-nav button:hover{background:rgba(255,255,255,.06); color:#fff}
 .ad-nav button.on{background:#1E6B5C; color:#fff}
 .ad-side-foot{display:flex; flex-direction:column; gap:8px; margin-top:auto; padding-top:14px; border-top:1px solid rgba(207,229,222,.1)}
+.ad-user{font-size:13px; font-weight:700; color:#E8F0EE; padding:0 4px 4px} .ad-user span{display:block; font-size:11px; font-weight:600; color:#3DDC97; text-transform:capitalize}
 .ad-main{flex:1; min-width:0; padding:26px clamp(16px,3vw,40px); overflow-x:hidden}
 .ct-row{cursor:pointer}
 .ct-row:hover{background:rgba(207,229,222,.06)}
