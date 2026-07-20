@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@netlify/blobs": "^10.7.9",
+    "imapflow": "^1.4.7",
+    "nodemailer": "^9.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

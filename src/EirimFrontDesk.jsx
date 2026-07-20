@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { LanguageProvider, useI18n, LangSwitcher } from "./i18n.jsx";
+import Tour from "./Tour.jsx";
 
 /* ============ EIRIM FRONT DESK — GP site (React) ============ */
 
@@ -51,11 +52,11 @@ function CountUp({ to, suffix = "", prefix = "", duration = 1400 }) {
 }
 
 /* ---------- shared bits ---------- */
-const Eyebrow = ({ children, light }) => (
+export const Eyebrow = ({ children, light }) => (
   <div className={"eyebrow" + (light ? " eyebrow-light" : "")}>{children}</div>
 );
 
-function Reveal({ children, delay = 0, className = "" }) {
+export function Reveal({ children, delay = 0, className = "" }) {
   const [ref, on] = useReveal();
   return (
     <div ref={ref} className={"rv " + (on ? "rv-on " : "") + className} style={{ transitionDelay: `${delay}ms` }}>
@@ -65,7 +66,7 @@ function Reveal({ children, delay = 0, className = "" }) {
 }
 
 /* ---------- Nav ---------- */
-function Nav() {
+export function Nav() {
   const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
@@ -76,7 +77,7 @@ function Nav() {
   return (
     <nav className={"nav" + (scrolled ? " nav-scrolled" : "")}>
       <div className="wrap nav-in">
-        <a href="#top" className="brand">
+        <a href="/" className="brand">
           <img src="/logo.webp" alt="Eirim Health — AI front desk for clinics" className="brand-logo" width="240" height="105" />
         </a>
         <div className="nav-links">
@@ -85,16 +86,18 @@ function Nav() {
               {t("nav.products")} <span className="nav-dd-caret">▾</span>
             </button>
             <div className="nav-dd-menu" role="menu">
-              <a href="#checkin" role="menuitem">{t("nav.p_kiosk")}</a>
-              <a href="#voice" role="menuitem">{t("nav.p_voice")}</a>
+              <a href="/#checkin" role="menuitem">{t("nav.p_kiosk")}</a>
+              <a href="/#voice" role="menuitem">{t("nav.p_voice")}</a>
+              <a href="/telehealth" role="menuitem">{t("nav.p_telehealth")}</a>
               <a href="#cta" role="menuitem" onClick={(e) => { e.preventDefault(); openDemo(); }}>{t("nav.p_agents")}</a>
               <a href="#cta" role="menuitem" onClick={(e) => { e.preventDefault(); openDemo(); }}>{t("nav.p_integrators")}</a>
               <a href="#cta" role="menuitem" onClick={(e) => { e.preventDefault(); openDemo(); }}>{t("nav.p_custom")}</a>
             </div>
           </div>
           <a href="#cta">{t("nav.contact")}</a>
-          <a href="#pricing">{t("nav.pricing")}</a>
-          <a href="#faq">{t("nav.faq")}</a>
+          <a href="/#pricing">{t("nav.pricing")}</a>
+          <a href="/#faq">{t("nav.faq")}</a>
+          <a href="#top" className="nav-tour" onClick={(e) => { e.preventDefault(); startTour(); }}>▶ {t("nav.tour")}</a>
           <a href="tel:+35315551234" className="nav-phone">📞 +353 1 555 1234</a>
           <a href="#cta" className="nav-cta" onClick={(e) => { e.preventDefault(); openDemo(); }}>{t("nav.book")}</a>
           <LangSwitcher />
@@ -315,7 +318,7 @@ function Stats() {
 function Problem() {
   const { t } = useI18n();
   return (
-    <section className="sec">
+    <section className="sec" id="problem">
       <div className="wrap">
         <Reveal>
           <Eyebrow>{t("problem.eyebrow")}</Eyebrow>
@@ -424,7 +427,7 @@ function Checkin() {
 function Integrations() {
   const { t } = useI18n();
   return (
-    <section className="sec sec-tint">
+    <section className="sec sec-tint" id="integrations">
       <div className="wrap int-grid">
         <div>
           <Reveal>
@@ -571,7 +574,7 @@ function CTA() {
   );
 }
 
-function Footer() {
+export function Footer() {
   const { t } = useI18n();
   return (
     <footer className="foot">
@@ -595,6 +598,11 @@ const isLeadEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v || "").tri
 // Any CTA can open the booking modal by dispatching this event.
 function openDemo() {
   window.dispatchEvent(new Event("eirim:book-demo"));
+}
+
+// The nav "Tour" item starts the narrated guided tour.
+function startTour() {
+  window.dispatchEvent(new Event("eirim:start-tour"));
 }
 
 function LeadForm({ source = "cta", onDone, dark = false }) {
@@ -684,7 +692,7 @@ function LeadForm({ source = "cta", onDone, dark = false }) {
   );
 }
 
-function BookDemo() {
+export function BookDemo() {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   useEffect(() => {
@@ -806,13 +814,14 @@ export default function EirimFrontDesk() {
         <CTA />
         <Footer />
         <BookDemo />
+        <Tour />
       </div>
     </LanguageProvider>
   );
 }
 
 /* ============ styles ============ */
-const CSS = `
+export const CSS = `
 /* Fonts are loaded via <link> in index.html for non-render-blocking, parallel fetch. */
 
 .eirim{
@@ -862,6 +871,8 @@ const CSS = `
 .nav-dd:hover .nav-dd-menu, .nav-dd:focus-within .nav-dd-menu{opacity:1; visibility:visible; transform:none}
 .nav-dd-menu a{padding:10px 13px; border-radius:9px; font-size:14.5px; font-weight:600; color:var(--ink); white-space:nowrap}
 .nav-dd-menu a:hover{background:var(--mist); color:var(--spruce)}
+.nav-tour{display:inline-flex; align-items:center; gap:5px; color:var(--spruce)!important; font-weight:700; white-space:nowrap}
+.nav-tour:hover{color:var(--spruce-deep)!important}
 .nav-cta{background:var(--gorse); color:var(--ink)!important; padding:9px 18px; border-radius:999px; font-weight:700}
 .nav-cta:hover{transform:translateY(-1px)}
 @media(max-width:820px){.nav-links a:not(.nav-cta){display:none}}
@@ -892,6 +903,12 @@ const CSS = `
 .hero-note{font-family:'Spline Sans Mono',monospace; font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.55)}
 .hero-art{position:relative}
 .hero-art img,.hero-art video{border-radius:24px; box-shadow:0 40px 90px rgba(0,0,0,.45); width:100%; height:auto; display:block}
+/* Feather the hero video edges so it blends/merges into the banner */
+.hero-art video{border-radius:0; box-shadow:none;
+  -webkit-mask-image:linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right, transparent 0, #000 12%, #000 88%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 12%, #000 88%, transparent 100%);
+  mask-composite:intersect}
 .hero-art-full img{max-height:none; object-fit:contain}
 .s-arrow{position:absolute; top:50%; transform:translateY(-50%); background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.28); color:#fff; width:46px; height:46px; border-radius:50%; font-size:24px; cursor:pointer; z-index:6; transition:background .15s}
 .s-arrow:hover{background:rgba(255,255,255,.24)}

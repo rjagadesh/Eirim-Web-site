@@ -183,7 +183,7 @@ const CSS = `
 .cbt-launch{position:fixed; right:22px; bottom:22px; z-index:9999; width:80px; height:80px; padding:0;
   background:transparent; border:none; cursor:pointer; transition:transform .18s ease; display:block; animation:cbtbob 3s ease-in-out infinite}
 .cbt-launch:hover{transform:translateY(-5px) scale(1.06); animation-play-state:paused}
-.cbt-launch-img{width:100%; height:100%; object-fit:cover; border-radius:22px; display:block; box-shadow:0 12px 30px rgba(15,46,42,.42)}
+.cbt-launch-img{width:100%; height:100%; object-fit:contain; display:block; filter:drop-shadow(0 8px 14px rgba(15,46,42,.4))}
 @keyframes cbtbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 @media(prefers-reduced-motion:reduce){.cbt-launch{animation:none}}
 

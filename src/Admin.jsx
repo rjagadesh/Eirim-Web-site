@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import Campaigns from "./Campaigns.jsx";
+import Finance from "./Finance.jsx";
 
 const DATA_ENDPOINT = "/.netlify/functions/admin-data";
 const PW_KEY = "eirim_admin_pw";
@@ -29,6 +31,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("leads");
+  const [chatSub, setChatSub] = useState("transcripts"); // sub-view of the Chatbot tab
   const [openSession, setOpenSession] = useState(null);
 
   const load = async (password) => {
@@ -112,62 +115,39 @@ export default function Admin() {
   const topCampaigns = tally(pageviews, (p) => p.utm?.campaign || p.utm?.source);
 
   return (
-    <div className="ad-wrap">
+    <div className="ad-wrap ad-shell">
       <style>{CSS}</style>
-      <header className="ad-top">
-        <div>
-          <h1>Eirim Admin</h1>
-          <span className="ad-sub">Chat database &amp; visitor log</span>
+      <aside className="ad-side">
+        <div className="ad-side-brand">Eirim <b>Admin</b></div>
+        <nav className="ad-nav">
+          <button className={tab === "campaigns" ? "on" : ""} onClick={() => setTab("campaigns")}>📣 Campaigns</button>
+          <button className={tab === "financials" ? "on" : ""} onClick={() => setTab("financials")}>💶 Financials</button>
+          <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>📥 Demo requests</button>
+          <button className={tab === "traffic" ? "on" : ""} onClick={() => setTab("traffic")}>📊 Traffic</button>
+          <button className={tab === "chat" ? "on" : ""} onClick={() => setTab("chat")}>💬 Chatbot</button>
+        </nav>
+        <div className="ad-side-foot">
+          <button className="ad-ghost" onClick={() => load(pw)} disabled={loading}>{loading ? "Refreshing…" : "Refresh"}</button>
+          <button className="ad-ghost" onClick={logout}>Log out</button>
         </div>
-        <div className="ad-actions">
-          <button className="ad-ghost" onClick={() => load(pw)} disabled={loading}>
-            {loading ? "Refreshing…" : "Refresh"}
-          </button>
-          <button className="ad-ghost" onClick={logout}>
-            Log out
-          </button>
-        </div>
-      </header>
+      </aside>
 
-      <div className="ad-stats">
-        <div className="ad-stat ad-stat-hot">
-          <b>{counts.leads ?? leads.length}</b>
-          <span>Demo requests</span>
-        </div>
-        <div className="ad-stat">
-          <b>{counts.pageviews ?? pageviews.length}</b>
-          <span>Pageviews</span>
-        </div>
-        <div className="ad-stat">
-          <b>{uniqueVisitors}</b>
-          <span>Unique visitors</span>
-        </div>
-        <div className="ad-stat">
-          <b>{counts.visitors ?? visitors.length}</b>
-          <span>Chat leads</span>
-        </div>
-        <div className="ad-stat">
-          <b>{counts.transcripts ?? transcripts.length}</b>
-          <span>Chat sessions</span>
-        </div>
-      </div>
-
-      <nav className="ad-tabs">
-        <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>
-          Demo requests
-        </button>
-        <button className={tab === "traffic" ? "on" : ""} onClick={() => setTab("traffic")}>
-          Traffic
-        </button>
-        <button className={tab === "visitors" ? "on" : ""} onClick={() => setTab("visitors")}>
-          Chat leads
-        </button>
-        <button className={tab === "chats" ? "on" : ""} onClick={() => setTab("chats")}>
-          Chat transcripts
-        </button>
-      </nav>
+      <main className="ad-main">
+        {!["campaigns", "financials"].includes(tab) && (
+          <div className="ad-stats">
+            <div className="ad-stat ad-stat-hot"><b>{counts.leads ?? leads.length}</b><span>Demo requests</span></div>
+            <div className="ad-stat"><b>{counts.pageviews ?? pageviews.length}</b><span>Pageviews</span></div>
+            <div className="ad-stat"><b>{uniqueVisitors}</b><span>Unique visitors</span></div>
+            <div className="ad-stat"><b>{counts.visitors ?? visitors.length}</b><span>Chat leads</span></div>
+            <div className="ad-stat"><b>{counts.transcripts ?? transcripts.length}</b><span>Chat sessions</span></div>
+          </div>
+        )}
 
       {error && <div className="ad-err">{error}</div>}
+
+      {tab === "campaigns" && <Campaigns pw={pw} leads={leads} visitors={visitors} />}
+
+      {tab === "financials" && <Finance pw={pw} />}
 
       {tab === "leads" && (
         <div className="ad-card">
@@ -267,7 +247,14 @@ export default function Admin() {
         </>
       )}
 
-      {tab === "visitors" && (
+      {tab === "chat" && (
+        <nav className="ad-tabs ad-subtabs">
+          <button className={chatSub === "transcripts" ? "on" : ""} onClick={() => setChatSub("transcripts")}>Transcripts ({transcripts.length})</button>
+          <button className={chatSub === "leads" ? "on" : ""} onClick={() => setChatSub("leads")}>Chat leads ({visitors.length})</button>
+        </nav>
+      )}
+
+      {tab === "chat" && chatSub === "leads" && (
         <div className="ad-card">
           {visitors.length === 0 ? (
             <div className="ad-empty">No visitors logged yet.</div>
@@ -304,7 +291,7 @@ export default function Admin() {
         </div>
       )}
 
-      {tab === "chats" && (
+      {tab === "chat" && chatSub === "transcripts" && (
         <div className="ad-card">
           {transcripts.length === 0 ? (
             <div className="ad-empty">No chat transcripts yet.</div>
@@ -340,6 +327,7 @@ export default function Admin() {
           )}
         </div>
       )}
+      </main>
     </div>
   );
 }
@@ -371,6 +359,22 @@ function InsightCard({ title, rows, empty = "No data yet" }) {
 
 const CSS = `
 .ad-wrap{min-height:100vh; background:#0F1B19; color:#E8F0EE; font-family:'Figtree',system-ui,sans-serif; padding:26px clamp(16px,4vw,48px)}
+/* sidebar shell */
+.ad-shell{padding:0; display:flex; align-items:stretch}
+.ad-side{width:232px; flex:none; background:#0b1513; border-right:1px solid rgba(207,229,222,.1); padding:22px 14px; display:flex; flex-direction:column; gap:6px; position:sticky; top:0; height:100vh}
+.ad-side-brand{font-size:18px; font-weight:600; padding:4px 10px 16px}
+.ad-nav{display:flex; flex-direction:column; gap:3px; flex:1}
+.ad-nav button{text-align:left; background:none; border:none; color:rgba(232,240,238,.7); padding:10px 12px; border-radius:9px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; white-space:nowrap}
+.ad-nav button:hover{background:rgba(255,255,255,.06); color:#fff}
+.ad-nav button.on{background:#1E6B5C; color:#fff}
+.ad-side-foot{display:flex; flex-direction:column; gap:8px; margin-top:auto; padding-top:14px; border-top:1px solid rgba(207,229,222,.1)}
+.ad-main{flex:1; min-width:0; padding:26px clamp(16px,3vw,40px); overflow-x:hidden}
+@media(max-width:760px){
+  .ad-shell{flex-direction:column}
+  .ad-side{width:auto; height:auto; position:static; border-right:none; border-bottom:1px solid rgba(207,229,222,.1)}
+  .ad-nav{flex-direction:row; flex-wrap:wrap}
+  .ad-side-foot{flex-direction:row; border-top:none; padding-top:0; margin-top:8px}
+}
 .ad-center{display:grid; place-items:center}
 .ad-login{background:#16302B; border:1px solid rgba(207,229,222,.16); border-radius:16px; padding:34px 30px; width:min(360px,92vw); display:flex; flex-direction:column; gap:14px; box-shadow:0 30px 80px rgba(0,0,0,.5)}
 .ad-login h1{font-size:22px; margin:0}
