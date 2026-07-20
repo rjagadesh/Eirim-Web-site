@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Campaigns from "./Campaigns.jsx";
 import Finance from "./Finance.jsx";
 import { Contacts, ContactDetail } from "./Contacts.jsx";
+import Pipeline from "./Pipeline.jsx";
 
 const DATA_ENDPOINT = "/.netlify/functions/admin-data";
 const PW_KEY = "eirim_admin_pw";
@@ -124,6 +125,7 @@ export default function Admin() {
         <div className="ad-side-brand">Eirim <b>Admin</b></div>
         <nav className="ad-nav">
           <button className={tab === "contacts" ? "on" : ""} onClick={() => setTab("contacts")}>👤 Contacts</button>
+          <button className={tab === "pipeline" ? "on" : ""} onClick={() => setTab("pipeline")}>🗂 Pipeline</button>
           <button className={tab === "campaigns" ? "on" : ""} onClick={() => setTab("campaigns")}>📣 Campaigns</button>
           <button className={tab === "financials" ? "on" : ""} onClick={() => setTab("financials")}>💶 Financials</button>
           <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>📥 Demo requests</button>
@@ -137,7 +139,7 @@ export default function Admin() {
       </aside>
 
       <main className="ad-main">
-        {!["campaigns", "financials", "contacts"].includes(tab) && (
+        {!["campaigns", "financials", "contacts", "pipeline"].includes(tab) && (
           <div className="ad-stats">
             <div className="ad-stat ad-stat-hot"><b>{counts.leads ?? leads.length}</b><span>Demo requests</span></div>
             <div className="ad-stat"><b>{counts.pageviews ?? pageviews.length}</b><span>Pageviews</span></div>
@@ -150,6 +152,8 @@ export default function Admin() {
       {error && <div className="ad-err">{error}</div>}
 
       {tab === "contacts" && <Contacts pw={pw} onOpen={openContact} />}
+
+      {tab === "pipeline" && <Pipeline pw={pw} onOpen={openContact} />}
 
       {tab === "campaigns" && <Campaigns pw={pw} leads={leads} visitors={visitors} />}
 

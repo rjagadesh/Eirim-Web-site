@@ -164,6 +164,34 @@ export async function contactDetail(email) {
   return { ...base, ...(crm || {}), chats, pageviews: views, campaignEvents, demoRequest: base.demoRequest || null };
 }
 
+// Convert a Won deal into a Financials income entry (once).
+export async function convertWonToIncome(email) {
+  const key = normEmail(email);
+  const list = await buildContacts();
+  const c = list.find((x) => x.email === key);
+  if (!c) throw new Error("Contact not found");
+  const crm = (await loadCrm(key)) || { email: key };
+  if (crm.convertedAt) return { ok: false, reason: "already converted" };
+  const amount = Math.round((crm.dealValue || c.dealValue || 0) * 100) / 100;
+  if (!amount) throw new Error("Set a deal value first");
+
+  const entry = {
+    id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    date: new Date().toISOString().slice(0, 10),
+    type: "income",
+    category: "Deal won",
+    amount,
+    party: c.clinic || c.name || key,
+    description: `Won deal — ${c.name || key}`,
+    createdAt: new Date().toISOString(),
+  };
+  await getStore("finance").setJSON(entry.id, entry);
+  crm.convertedAt = new Date().toISOString();
+  crm.stage = "won";
+  await saveCrm(crm);
+  return { ok: true, amount };
+}
+
 // One-click: add a contact to a campaign's recipient list (if not already there).
 export async function promoteToCampaign(email, campaignId, name = "", clinic = "") {
   const campaign = await loadCampaign(campaignId);

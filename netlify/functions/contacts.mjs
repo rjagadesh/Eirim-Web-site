@@ -4,6 +4,7 @@ import {
   buildContacts,
   contactDetail,
   promoteToCampaign,
+  convertWonToIncome,
   loadCrm,
   saveCrm,
   normEmail,
@@ -55,6 +56,10 @@ export default async (req) => {
     if (action === "promote") {
       const r = await promoteToCampaign(body.email, body.campaignId, body.name, body.clinic);
       return json({ ok: true, ...r });
+    }
+    if (action === "convertToIncome") {
+      const r = await convertWonToIncome(body.email);
+      return json(r);
     }
     return json({ error: "Unknown action" }, 400);
   } catch (err) {
