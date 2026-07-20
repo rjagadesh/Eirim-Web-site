@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Campaigns from "./Campaigns.jsx";
 import Finance from "./Finance.jsx";
+import { Contacts, ContactDetail } from "./Contacts.jsx";
 
 const DATA_ENDPOINT = "/.netlify/functions/admin-data";
 const PW_KEY = "eirim_admin_pw";
@@ -32,6 +33,8 @@ export default function Admin() {
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("leads");
   const [chatSub, setChatSub] = useState("transcripts"); // sub-view of the Chatbot tab
+  const [contactEmail, setContactEmail] = useState(null); // open contact detail
+  const openContact = (email) => email && setContactEmail(email);
   const [openSession, setOpenSession] = useState(null);
 
   const load = async (password) => {
@@ -120,6 +123,7 @@ export default function Admin() {
       <aside className="ad-side">
         <div className="ad-side-brand">Eirim <b>Admin</b></div>
         <nav className="ad-nav">
+          <button className={tab === "contacts" ? "on" : ""} onClick={() => setTab("contacts")}>👤 Contacts</button>
           <button className={tab === "campaigns" ? "on" : ""} onClick={() => setTab("campaigns")}>📣 Campaigns</button>
           <button className={tab === "financials" ? "on" : ""} onClick={() => setTab("financials")}>💶 Financials</button>
           <button className={tab === "leads" ? "on" : ""} onClick={() => setTab("leads")}>📥 Demo requests</button>
@@ -133,7 +137,7 @@ export default function Admin() {
       </aside>
 
       <main className="ad-main">
-        {!["campaigns", "financials"].includes(tab) && (
+        {!["campaigns", "financials", "contacts"].includes(tab) && (
           <div className="ad-stats">
             <div className="ad-stat ad-stat-hot"><b>{counts.leads ?? leads.length}</b><span>Demo requests</span></div>
             <div className="ad-stat"><b>{counts.pageviews ?? pageviews.length}</b><span>Pageviews</span></div>
@@ -144,6 +148,8 @@ export default function Admin() {
         )}
 
       {error && <div className="ad-err">{error}</div>}
+
+      {tab === "contacts" && <Contacts pw={pw} onOpen={openContact} />}
 
       {tab === "campaigns" && <Campaigns pw={pw} leads={leads} visitors={visitors} />}
 
@@ -171,7 +177,7 @@ export default function Admin() {
                 </thead>
                 <tbody>
                   {leads.map((l) => (
-                    <tr key={l.id}>
+                    <tr key={l.id} className="ct-row" onClick={() => openContact(l.email)}>
                       <td className="ad-nowrap">{fmt(l.at)}</td>
                       <td>{l.name || "—"}</td>
                       <td>
@@ -273,7 +279,7 @@ export default function Admin() {
                 </thead>
                 <tbody>
                   {visitors.map((v) => (
-                    <tr key={v.sessionId}>
+                    <tr key={v.sessionId} className={v.email ? "ct-row" : ""} onClick={() => v.email && openContact(v.email)}>
                       <td className="ad-nowrap">{fmt(v.at)}</td>
                       <td>{v.name || "—"}</td>
                       <td>{v.email || "—"}</td>
@@ -328,6 +334,9 @@ export default function Admin() {
         </div>
       )}
       </main>
+      {contactEmail && (
+        <ContactDetail pw={pw} email={contactEmail} onClose={() => setContactEmail(null)} onChanged={() => load(pw)} />
+      )}
     </div>
   );
 }
@@ -369,6 +378,8 @@ const CSS = `
 .ad-nav button.on{background:#1E6B5C; color:#fff}
 .ad-side-foot{display:flex; flex-direction:column; gap:8px; margin-top:auto; padding-top:14px; border-top:1px solid rgba(207,229,222,.1)}
 .ad-main{flex:1; min-width:0; padding:26px clamp(16px,3vw,40px); overflow-x:hidden}
+.ct-row{cursor:pointer}
+.ct-row:hover{background:rgba(207,229,222,.06)}
 @media(max-width:760px){
   .ad-shell{flex-direction:column}
   .ad-side{width:auto; height:auto; position:static; border-right:none; border-bottom:1px solid rgba(207,229,222,.1)}
