@@ -2,6 +2,12 @@
   command = "npm run build"
   publish = "dist"
 
+[build.environment]
+  # .env.example is a placeholder template (documents env-var names). Exclude it
+  # from Netlify's secret scanner so example values (e.g. smtp.gmail.com) don't
+  # fail the build. Real secrets live only in Netlify env vars / gitignored creds.json.
+  SECRETS_SCAN_OMIT_PATHS = ".env.example"
+
 # SPA fallback so deep links resolve to the app
 [[redirects]]
   from = "/*"
