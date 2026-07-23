@@ -78,7 +78,7 @@ export function Nav() {
     <nav className={"nav" + (scrolled ? " nav-scrolled" : "")}>
       <div className="wrap nav-in">
         <a href="/" className="brand">
-          <img src="/logo.webp" alt="MedXFlow Health — AI front desk for clinics" className="brand-logo" width="240" height="105" />
+          <img src="/logo.webp" alt="MedXFlow — AI front desk for clinics" className="brand-logo" width="1045" height="140" />
         </a>
         <div className="nav-links">
           <div className="nav-dd">
@@ -854,7 +854,7 @@ export const CSS = `
 .nav-scrolled{box-shadow:0 10px 34px rgba(15,46,42,.14); padding:6px 0}
 .nav-in{display:flex; align-items:center; justify-content:space-between}
 .brand{display:flex; align-items:center; gap:10px; font-family:'Bricolage Grotesque',sans-serif; font-size:19px; color:var(--ink)}
-.brand-logo{height:50px; width:auto; display:block}
+.brand-logo{height:34px; width:auto; display:block}
 .brand b{font-weight:800}
 .brand span{line-height:1}
 .nav-links{display:flex; align-items:center; gap:24px; font-weight:600; font-size:15px; color:rgba(15,46,42,.72)}
