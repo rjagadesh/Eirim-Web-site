@@ -19,7 +19,7 @@ const html = (msg) =>
   new Response(
     `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <div style="font-family:system-ui,sans-serif;max-width:460px;margin:14vh auto;padding:0 24px;text-align:center;color:#0F2E2A">
-<h2 style="font-family:Georgia,serif">Eirim Health</h2><p style="font-size:16px;line-height:1.6">${msg}</p></div>`,
+<h2 style="font-family:Georgia,serif">MedXFlow Health</h2><p style="font-size:16px;line-height:1.6">${msg}</p></div>`,
     { status: 200, headers: { "content-type": "text/html" } }
   );
 

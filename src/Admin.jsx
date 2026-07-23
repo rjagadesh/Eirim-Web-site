@@ -93,7 +93,7 @@ export default function Admin() {
   };
 
   useEffect(() => {
-    document.title = "Admin · Eirim";
+    document.title = "Admin · MedXFlow";
     const m = document.createElement("meta");
     m.name = "robots"; m.content = "noindex, nofollow";
     document.head.appendChild(m);
@@ -115,7 +115,7 @@ export default function Admin() {
       <div className="ad-wrap ad-center">
         <style>{CSS}</style>
         <form className="ad-login" onSubmit={signIn}>
-          <h1>Eirim Admin</h1>
+          <h1>MedXFlow Admin</h1>
           <p>Sign in with your account, or leave email blank and use the owner password.</p>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (blank = owner)" autoComplete="username" />
           <input type="password" value={pwInput} onChange={(e) => setPwInput(e.target.value)} placeholder="Password" autoComplete="current-password" autoFocus />
@@ -137,7 +137,7 @@ export default function Admin() {
     <div className="ad-wrap ad-shell">
       <style>{CSS}</style>
       <aside className="ad-side">
-        <div className="ad-side-brand">Eirim <b>Admin</b></div>
+        <div className="ad-side-brand">MedXFlow <b>Admin</b></div>
         <nav className="ad-nav">
           {can("contacts") && <button className={tab === "contacts" ? "on" : ""} onClick={() => setTab("contacts")}>👤 Contacts</button>}
           {can("pipeline") && <button className={tab === "pipeline" ? "on" : ""} onClick={() => setTab("pipeline")}>🗂 Pipeline</button>}

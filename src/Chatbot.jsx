@@ -36,7 +36,7 @@ export default function Chatbot() {
     setMessages([
       {
         role: "assistant",
-        content: `Hi ${name.trim().split(" ")[0]}! I'm Aoife, the Eirim Front Desk assistant. Ask me anything about how Eirim can answer your clinic's calls, book appointments, and check patients in.`,
+        content: `Hi ${name.trim().split(" ")[0]}! I'm Aoife, the MedXFlow Front Desk assistant. Ask me anything about how MedXFlow can answer your clinic's calls, book appointments, and check patients in.`,
       },
     ]);
     // Log the visitor (fire-and-forget; never blocks the chat).
@@ -98,18 +98,18 @@ export default function Chatbot() {
 
       {!open && (
         <button className="cbt-launch" onClick={() => setOpen(true)} aria-label="Open chat">
-          <img src="/chat-bot.webp" alt="Open the Eirim chat assistant" className="cbt-launch-img" />
+          <img src="/chat-bot.webp" alt="Open the MedXFlow chat assistant" className="cbt-launch-img" />
         </button>
       )}
 
       {open && (
-        <div className="cbt-panel" role="dialog" aria-label="Eirim chat">
+        <div className="cbt-panel" role="dialog" aria-label="MedXFlow chat">
           <div className="cbt-head">
             <div className="cbt-head-id">
               <span className="cbt-avatar">A</span>
               <div>
                 <strong>Aoife</strong>
-                <small>Eirim Front Desk assistant</small>
+                <small>MedXFlow Front Desk assistant</small>
               </div>
             </div>
             <button className="cbt-x" onClick={() => setOpen(false)} aria-label="Close chat">

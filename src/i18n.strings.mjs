@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────
-//  English source-of-truth strings for the Eirim marketing page.
+//  English source-of-truth strings for the MedXFlow marketing page.
 //  This is the ONLY file you edit for copy. Translations (Spanish, Irish) are
 //  AI-drafted from here into i18n.es.json / i18n.ga.json by `npm run translate`
 //  — run that when copy changes, then commit the generated files. Translation
@@ -26,7 +26,7 @@ export const en = {
   },
 
   hero: {
-    s1_eyebrow: "Product · Eirim Check-in kiosk",
+    s1_eyebrow: "Product · MedXFlow Check-in kiosk",
     s1_h1a: "Meet your new",
     s1_h1b: "AI front desk assistant",
     s1_lead:
@@ -34,11 +34,11 @@ export const en = {
     s1_cta1: "See the kiosk",
     s1_cta2: "Pricing",
     s1_note: "Integrated with your PMS · Hardware included · €250/month",
-    s2_eyebrow: "Product · Eirim Voice",
+    s2_eyebrow: "Product · MedXFlow Voice",
     s2_h2a: "Every call answered.",
     s2_h2b: "All of them, at once.",
     s2_lead:
-      "When the 8am rush hits, Eirim Voice picks up every line simultaneously — booking, rescheduling and confirming by SMS, straight into your appointment book. No engaged tone. No voicemail. Ever.",
+      "When the 8am rush hits, MedXFlow Voice picks up every line simultaneously — booking, rescheduling and confirming by SMS, straight into your appointment book. No engaged tone. No voicemail. Ever.",
     s2_cta1: "Hear it work",
     s2_cta2: "Pricing",
     s2_note: "Unlimited simultaneous calls · 24/7 · €250/month + €0.10/min",
@@ -67,10 +67,10 @@ export const en = {
   },
 
   voice: {
-    eyebrow: "Eirim Voice · AI receptionist",
+    eyebrow: "MedXFlow Voice · AI receptionist",
     h2a: "Answers like your best",
     h2b: "receptionist. Never engaged.",
-    lead: "Eirim Voice answers every call on the first ring — in a warm, Irish-tuned voice — and books directly into your appointment book.",
+    lead: "MedXFlow Voice answers every call on the first ring — in a warm, Irish-tuned voice — and books directly into your appointment book.",
     t1: "Books, moves and cancels appointments in Socrates & HealthOne",
     t2: "Handles repeat prescription requests into a queue for the GP",
     t3: "Recognises urgent symptoms and warm-transfers to staff instantly",
@@ -79,7 +79,7 @@ export const en = {
   },
 
   checkin: {
-    eyebrow: "Eirim Check-in · kiosk",
+    eyebrow: "MedXFlow Check-in · kiosk",
     h2a: "Walk in. Touch the screen.",
     h2b: "Take a seat.",
     f1_h: "Arrival to PMS",
@@ -100,7 +100,7 @@ export const en = {
     eyebrow: "Integrations",
     h2a: "Built for the software",
     h2b: "you already run",
-    body: "Eirim writes bookings, arrivals and payments directly into the practice management systems used by over 80% of Irish general practice — with a fallback mode that works even before formal integration.",
+    body: "MedXFlow writes bookings, arrivals and payments directly into the practice management systems used by over 80% of Irish general practice — with a fallback mode that works even before formal integration.",
     caption: "Your appointment book, always current — no retyping, no sticky notes.",
   },
 
@@ -111,7 +111,7 @@ export const en = {
     elsewhere: "% who book elsewhere",
     fee: "Average visit fee",
     revenueOut: "Revenue walking out the door",
-    product: "Eirim Front Desk",
+    product: "MedXFlow Front Desk",
     recovered: "Recovered every month",
     footnote: "22 clinic days/month. Excludes receptionist hours freed and fewer no-shows from SMS confirmations.",
   },
@@ -145,31 +145,31 @@ export const en = {
   },
 
   about: {
-    eyebrow: "About Eirim",
+    eyebrow: "About MedXFlow",
     h2a: "Built by people who've run",
     h2b: "the front desk.",
-    body: "Eirim Health is an Irish company on a simple mission: give every practice a front desk that never misses a call. We pair deep healthcare-operations experience with modern voice AI — built for Socrates, HealthOne, and the realities of Irish clinics.",
+    body: "MedXFlow Health is an Irish company on a simple mission: give every practice a front desk that never misses a call. We pair deep healthcare-operations experience with modern voice AI — built for Socrates, HealthOne, and the realities of Irish clinics.",
     role1: "Co-founder & CEO",
     bio1: "Two decades in Irish healthcare operations — built and scaled reception teams across multi-site GP groups.",
     role2: "Co-founder & CTO",
     bio2: "Health-tech engineer who led voice-AI and PMS integration platforms used across hundreds of clinics.",
     role3: "Clinical Advisor",
-    bio3: "Practising GP focused on patient access and front-desk workflow, keeping Eirim clinically grounded.",
+    bio3: "Practising GP focused on patient access and front-desk workflow, keeping MedXFlow clinically grounded.",
   },
 
   faq: {
     eyebrow: "FAQ",
     h2: "Questions, answered.",
     q1: "Is patient data secure and GDPR-compliant?",
-    a1: "Yes. Eirim is built for Irish healthcare: data is hosted in the EU, encrypted in transit and at rest, and processed under a GDPR data-processing agreement. We use least-privilege access and full audit logging, and never sell data or use patient information to train public models.",
+    a1: "Yes. MedXFlow is built for Irish healthcare: data is hosted in the EU, encrypted in transit and at rest, and processed under a GDPR data-processing agreement. We use least-privilege access and full audit logging, and never sell data or use patient information to train public models.",
     q2: "How long does setup take?",
-    a2: "Most practices are live within a fortnight. We connect to your PMS (Socrates or HealthOne), configure your call flows and appointment types, and run a supervised pilot before Eirim answers live calls.",
+    a2: "Most practices are live within a fortnight. We connect to your PMS (Socrates or HealthOne), configure your call flows and appointment types, and run a supervised pilot before MedXFlow answers live calls.",
     q3: "What are the contract terms?",
     a3: "Founding practices get a 60-day trial, free setup, and pricing locked for 24 months. After the trial it's a simple monthly plan — no long lock-in, cancel with 30 days' notice.",
     q4: "What happens when the AI can't handle a call?",
-    a4: "Eirim knows its limits. Anything clinical, urgent, or out of scope is warm-transferred to your team or flagged for callback, with a full transcript. It augments your reception — it never overrides clinical judgement.",
+    a4: "MedXFlow knows its limits. Anything clinical, urgent, or out of scope is warm-transferred to your team or flagged for callback, with a full transcript. It augments your reception — it never overrides clinical judgement.",
     q5: "Does it work with our phone system and PMS?",
-    a5: "Yes. Eirim sits alongside your existing phone number and writes bookings, arrivals, and payments straight into Socrates and HealthOne. No rip-and-replace.",
+    a5: "Yes. MedXFlow sits alongside your existing phone number and writes bookings, arrivals, and payments straight into Socrates and HealthOne. No rip-and-replace.",
     q6: "Which languages does it support?",
     a6: "English and Gaeilge today, with a warm, Irish-tuned voice and accessibility options (larger type, slower pace) for older patients.",
   },
@@ -177,7 +177,7 @@ export const en = {
   cta: {
     h2a: "Be one of the twenty",
     h2b: "founding practices",
-    lead: "Free setup, a 60-day trial, and pricing locked for 24 months. We'll have Eirim Voice answering your calls within a fortnight.",
+    lead: "Free setup, a 60-day trial, and pricing locked for 24 months. We'll have MedXFlow Voice answering your calls within a fortnight.",
     formTitle: "Request your demo",
   },
 
@@ -188,40 +188,40 @@ export const en = {
     phone: "Phone",
     bestTime: "Best time to call",
     message: "Anything specific?",
-    messagePlaceholder: "What would you like Eirim to help with?",
+    messagePlaceholder: "What would you like MedXFlow to help with?",
     submit: "Request my demo",
     sending: "Sending…",
     fine: "No spam. We'll only use this to arrange your demo.",
     doneTitle: "Thanks",
-    doneMsg: "We've got your request — the Eirim team will be in touch within one business day to arrange your demo.",
+    doneMsg: "We've got your request — the MedXFlow team will be in touch within one business day to arrange your demo.",
     invalid: "Please enter your name and a valid email.",
   },
 
   bookdemo: {
     eyebrow: "Book a demo",
-    title: "See Eirim on your own calls",
+    title: "See MedXFlow on your own calls",
     sub: "A free 15-minute walkthrough. Tell us where to reach you and we'll set it up.",
   },
 
   footer: {
     location: "Dublin, Ireland",
-    legal: "GDPR compliant · Data hosted in the EU · © 2026 Eirim Health",
+    legal: "GDPR compliant · Data hosted in the EU · © 2026 MedXFlow Health",
   },
 
   // Telehealth product page (/telehealth)
   telehealth: {
-    hero_eyebrow: "Product · Eirim Telehealth",
+    hero_eyebrow: "Product · MedXFlow Telehealth",
     hero_h1a: "See patients anywhere,",
     hero_h1b: "in one tap.",
-    hero_lead: "Eirim Telehealth turns any appointment into a secure video consultation — no apps, no downloads. The patient taps a link, joins in their browser, and every note writes straight back into Socrates and HealthOne.",
+    hero_lead: "MedXFlow Telehealth turns any appointment into a secure video consultation — no apps, no downloads. The patient taps a link, joins in their browser, and every note writes straight back into Socrates and HealthOne.",
     hero_cta1: "Book a demo",
     hero_cta2: "See pricing",
     hero_note: "No downloads · EU-hosted · Integrated with your PMS",
 
-    intro_eyebrow: "Why Eirim Telehealth",
+    intro_eyebrow: "Why MedXFlow Telehealth",
     intro_h2a: "Video visits that feel like",
     intro_h2b: "part of the practice.",
-    intro_body: "Telehealth shouldn't mean a second system your team has to babysit. Eirim books, sends, and documents video consultations inside the workflow you already run — so a virtual visit is just another slot in the day.",
+    intro_body: "Telehealth shouldn't mean a second system your team has to babysit. MedXFlow books, sends, and documents video consultations inside the workflow you already run — so a virtual visit is just another slot in the day.",
 
     feat_eyebrow: "What's included",
     feat_h2: "Everything a virtual visit needs",
@@ -241,7 +241,7 @@ export const en = {
     how_eyebrow: "How it works",
     how_h2: "From booking to follow-up",
     step1_h: "Book",
-    step1_d: "Reception or Eirim Voice books a video slot — the patient picks a time like any appointment.",
+    step1_d: "Reception or MedXFlow Voice books a video slot — the patient picks a time like any appointment.",
     step2_h: "Tap to join",
     step2_d: "An SMS link arrives. The patient taps it and lands in the waiting room, in their browser.",
     step3_h: "Consult",
@@ -250,7 +250,7 @@ export const en = {
     step4_d: "Notes, scripts and next steps write back automatically. The patient gets an SMS summary.",
 
     cta_h2: "Add telehealth to your practice",
-    cta_lead: "See how virtual visits slot into your day — book a free 15-minute demo with the Eirim team.",
+    cta_lead: "See how virtual visits slot into your day — book a free 15-minute demo with the MedXFlow team.",
     back: "← All products",
   },
 
@@ -258,16 +258,16 @@ export const en = {
   tour: {
     exit: "Exit tour",
     replay: "Replay",
-    intro: "Welcome to Eirim. Here's a quick tour of how it gives your practice a front desk that never misses a call.",
+    intro: "Welcome to MedXFlow. Here's a quick tour of how it gives your practice a front desk that never misses a call.",
     problem: "It starts with the phone. When twenty patients call at eight in the morning, one receptionist can't answer them all — and every engaged tone is a patient who books elsewhere.",
-    voice: "Eirim Voice answers every call at once, day or night, in a warm Irish voice — booking, rescheduling and confirming by text, straight into Socrates or HealthOne.",
-    checkin: "At the door, the Eirim Check-in kiosk greets patients, takes the copay, refreshes their details, and marks them arrived — with no queue at the desk.",
+    voice: "MedXFlow Voice answers every call at once, day or night, in a warm Irish voice — booking, rescheduling and confirming by text, straight into Socrates or HealthOne.",
+    checkin: "At the door, the MedXFlow Check-in kiosk greets patients, takes the copay, refreshes their details, and marks them arrived — with no queue at the desk.",
     integrations: "Everything writes directly into the practice software you already run — Socrates, HealthOne and more — with no rip and replace.",
-    roi: "Try your own numbers. Every missed call has a cost, and Eirim recovers most of it every single month.",
+    roi: "Try your own numbers. Every missed call has a cost, and MedXFlow recovers most of it every single month.",
     pricing: "Pricing is simple and monthly, with no lock-in — start with Voice, Check-in, or the full Front Desk.",
-    about: "Eirim is built by an Irish team who have run the front desk themselves.",
+    about: "MedXFlow is built by an Irish team who have run the front desk themselves.",
     faq: "Common questions — data security, setup time, and how the AI hands over to your staff — are all answered here.",
-    cta: "Ready to see it on your own calls? Book a free fifteen-minute demo, and we'll have Eirim answering within a fortnight.",
+    cta: "Ready to see it on your own calls? Book a free fifteen-minute demo, and we'll have MedXFlow answering within a fortnight.",
   },
 };
 

@@ -78,7 +78,7 @@ export function Nav() {
     <nav className={"nav" + (scrolled ? " nav-scrolled" : "")}>
       <div className="wrap nav-in">
         <a href="/" className="brand">
-          <img src="/logo.webp" alt="Eirim Health — AI front desk for clinics" className="brand-logo" width="240" height="105" />
+          <img src="/logo.webp" alt="MedXFlow Health — AI front desk for clinics" className="brand-logo" width="240" height="105" />
         </a>
         <div className="nav-links">
           <div className="nav-dd">
@@ -255,7 +255,7 @@ function Hero() {
               muted
               playsInline
               onEnded={() => setIdx((i) => (i === 0 ? 1 : i))}
-              aria-label="Patient checking in at the Eirim kiosk in a clinic lobby"
+              aria-label="Patient checking in at the MedXFlow kiosk in a clinic lobby"
             />
           </div>
         </div>
@@ -282,7 +282,7 @@ function Hero() {
               muted
               playsInline
               onEnded={() => setIdx((i) => (i === 1 ? 0 : i))}
-              aria-label="Eirim Voice AI agent answering patient calls alongside the reception team"
+              aria-label="MedXFlow Voice AI agent answering patient calls alongside the reception team"
             />
           </div>
         </div>
@@ -375,7 +375,7 @@ function Voice() {
           </Reveal>
         </div>
         <Reveal delay={150}>
-          <img className="voice-photo" src="/voice-ai-image.webp" alt="Eirim Voice AI receptionist answering patient calls for a clinic" loading="lazy" decoding="async" width="1512" height="1008" />
+          <img className="voice-photo" src="/voice-ai-image.webp" alt="MedXFlow Voice AI receptionist answering patient calls for a clinic" loading="lazy" decoding="async" width="1512" height="1008" />
           <CallDemo header="EIRIM VOICE · LIVE" sub="MON 08:02 · 23 CALLS IN PROGRESS" />
         </Reveal>
       </div>
@@ -404,7 +404,7 @@ function Checkin() {
         <div className="ck-grid">
           <Reveal delay={80}>
             <div className="ck-photos">
-              <img className="ck-main" src="/kiosk-image.webp" alt="Patient using an Eirim Health self check-in kiosk in a clinic lobby" loading="lazy" decoding="async" width="1122" height="1402" />
+              <img className="ck-main" src="/kiosk-image.webp" alt="Patient using an MedXFlow Health self check-in kiosk in a clinic lobby" loading="lazy" decoding="async" width="1122" height="1402" />
             </div>
           </Reveal>
           <div className="ck-feats">
@@ -506,17 +506,17 @@ function Pricing() {
   const { t } = useI18n();
   const plans = [
     {
-      name: "Eirim Voice", price: "€250", per: t("pricing.voice_per"),
+      name: "MedXFlow Voice", price: "€250", per: t("pricing.voice_per"),
       feats: [t("pricing.voice_f1"), t("pricing.voice_f2"), t("pricing.voice_f3"), t("pricing.voice_f4"), t("pricing.voice_f5"), t("pricing.voice_f6")],
       cta: t("pricing.voice_cta"),
     },
     {
-      name: "Eirim Front Desk", price: "€449", per: t("pricing.fd_per"), featured: true,
+      name: "MedXFlow Front Desk", price: "€449", per: t("pricing.fd_per"), featured: true,
       feats: [t("pricing.fd_f1"), t("pricing.fd_f2"), t("pricing.fd_f3"), t("pricing.fd_f4"), t("pricing.fd_f5")],
       cta: t("pricing.fd_cta"),
     },
     {
-      name: "Eirim Check-in", price: "€250", per: t("pricing.ci_per"),
+      name: "MedXFlow Check-in", price: "€250", per: t("pricing.ci_per"),
       feats: [t("pricing.ci_f1"), t("pricing.ci_f2"), t("pricing.ci_f3"), t("pricing.ci_f4"), t("pricing.ci_f5")],
       cta: t("pricing.ci_cta"),
     },
@@ -559,7 +559,7 @@ function CTA() {
             <p className="lead-light">{t("cta.lead")}</p>
             <div className="cta-contact">
               <a href="tel:+35315551234">📞 +353 1 555 1234</a>
-              <a href="mailto:hello@eirimhealth.com">✉ hello@eirimhealth.com</a>
+              <a href="mailto:hello@medxflow.com">✉ hello@medxflow.com</a>
             </div>
           </Reveal>
         </div>
@@ -579,10 +579,10 @@ export function Footer() {
   return (
     <footer className="foot">
       <div className="wrap foot-in">
-        <div className="brand brand-foot"><ShamrockMark size={24} variant="light" /><span>Eirim <b>Health</b></span></div>
+        <div className="brand brand-foot"><ShamrockMark size={24} variant="light" /><span>MedXFlow <b>Health</b></span></div>
         <div className="foot-links">
           <a href="tel:+35315551234">📞 +353 1 555 1234</a>
-          <a href="mailto:hello@eirimhealth.com">hello@eirimhealth.com</a>
+          <a href="mailto:hello@medxflow.com">hello@medxflow.com</a>
           <span>{t("footer.location")}</span>
         </div>
         <div className="foot-legal">{t("footer.legal")}</div>

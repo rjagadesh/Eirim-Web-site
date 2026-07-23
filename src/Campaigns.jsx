@@ -183,7 +183,7 @@ function ListView({ campaigns, loading, busy, onNew, onOpen, onSync }) {
 }
 
 function NewCampaign({ leads, visitors, onCancel, onCreated, call }) {
-  const [f, setF] = useState({ name: "", fromName: "Eirim Health", subject: "", body: "Hi {{firstName}},\n\n" });
+  const [f, setF] = useState({ name: "", fromName: "MedXFlow Health", subject: "", body: "Hi {{firstName}},\n\n" });
   const [recipients, setRecipients] = useState("");
   const [followups, setFollowups] = useState([]);
   const [sendDays, setSendDays] = useState([1, 3, 5]);
@@ -219,7 +219,7 @@ function NewCampaign({ leads, visitors, onCancel, onCreated, call }) {
       </div>
       <label>Campaign name<input value={f.name} onChange={set("name")} placeholder="e.g. Founding practices — March" /></label>
       <div className="cmp-row">
-        <label>From name<input value={f.fromName} onChange={set("fromName")} placeholder="Eirim Health" /></label>
+        <label>From name<input value={f.fromName} onChange={set("fromName")} placeholder="MedXFlow Health" /></label>
         <label>Subject<input value={f.subject} onChange={set("subject")} placeholder="Cut missed calls at your practice" /></label>
       </div>
       <label>

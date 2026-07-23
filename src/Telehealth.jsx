@@ -48,7 +48,7 @@ function TelehealthPage() {
               muted
               loop
               playsInline
-              aria-label="Eirim Telehealth video consultation between a clinician and a patient"
+              aria-label="MedXFlow Telehealth video consultation between a clinician and a patient"
             />
           </div>
         </div>

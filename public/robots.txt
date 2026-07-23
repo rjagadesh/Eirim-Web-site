@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin
 
-Sitemap: https://eirimhealth.com/sitemap.xml
+Sitemap: https://medxflow.com/sitemap.xml

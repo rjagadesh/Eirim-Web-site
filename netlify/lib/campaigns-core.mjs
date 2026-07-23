@@ -110,7 +110,7 @@ function buildHtml(campaign, recip, msg, cfg) {
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1a2b28;max-width:600px">
 ${body}
 <div style="margin-top:26px;padding-top:14px;border-top:1px solid #e5e5e5;font-size:12px;color:#999">
-You're receiving this because you enquired about Eirim Health. <a href="${unsub}" style="color:#999">Unsubscribe</a>.
+You're receiving this because you enquired about MedXFlow Health. <a href="${unsub}" style="color:#999">Unsubscribe</a>.
 </div>
 <img src="${pixel}" width="1" height="1" alt="" style="display:none">
 </div>`;

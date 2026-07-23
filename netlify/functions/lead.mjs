@@ -57,7 +57,7 @@ export default async (req, context) => {
     await store.setJSON(id, record);
   } catch (err) {
     console.error("lead store error:", err.message);
-    return json({ error: "Could not save. Please email hello@eirimhealth.com." }, 500);
+    return json({ error: "Could not save. Please email hello@medxflow.com." }, 500);
   }
 
   return json({ ok: true });

@@ -38,7 +38,7 @@ const TARGETS = [
 ];
 
 const DO_NOT_TRANSLATE =
-  "Eirim, Eirim Health, Eirim Voice, Eirim Front Desk, Eirim Check-in, Socrates, HealthOne, CompleteGP, Healthmail, Gaeilge, Fáilte, Eircode, SMS, PMS, GP, AI, GDPR, Wi-Fi";
+  "MedXFlow, MedXFlow Health, MedXFlow Voice, MedXFlow Front Desk, MedXFlow Check-in, Socrates, HealthOne, CompleteGP, Healthmail, Gaeilge, Fáilte, Eircode, SMS, PMS, GP, AI, GDPR, Wi-Fi";
 
 async function translate(target) {
   const sys =
